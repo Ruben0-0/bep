@@ -20,6 +20,6 @@ n = 15
 ## Create synthetic sequence:
 x, y, derivatives, bounds, dictionaries = seq.sequencer(para_depths, para_lithologies, layout, n, res,
                                                         alpha=0.4, beta=0.2, filepath=filepath2)
-depths, lithologies = noise.gaussian_noise(x, y, derivatives, bounds, dictionaries, layout, gamma=0)
+depths, lithologies = noise.gaussian_noise(x, y, derivatives, bounds, dictionaries, layout, gamma=0.5)
 ## Run Burgess model:
 result1, result2 = burg.main(depths, lithologies, layout, filepath1)
