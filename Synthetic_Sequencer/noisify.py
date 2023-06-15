@@ -17,6 +17,7 @@ import seqreader
 ## para_boundaries: a list of length n+1 containing the x-values of the parasequence boundaries (includes x=0).
 ## dicts: a list of length n containing for each parasequence a dictionary with value ranges/signs for each lithology.
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
+## filepath [optional]: string containing the directory and filename to which the figures are saved.
 # =====================================================================================================================
 # OUTPUT:
 # =====================================================================================================================
@@ -26,7 +27,7 @@ import seqreader
 
 
 def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: list, layout: dict,
-                   gamma: float = 0):
+                   gamma: float = 0, filepath: str = None):
     # Make a copy of the pre-noise profile and unpack the derivatives and normalize them:
     pre_noise_profile = y_profile
     dy = derivs[0] / max(abs(min(derivs[0])), abs(max(derivs[0])))
@@ -113,7 +114,12 @@ def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: l
     axes[2].set_title('Lithology', weight='semibold')
     axes[2].legend(handles=legend_elements, loc='lower left')
 
-    plt.show()
+    # Show or save the figure depending on input 'filepath':
+    if filepath is None:
+        plt.show()
+    else:
+        plt.subplots_adjust(wspace=0.4)
+        plt.savefig(filepath + '\ Noisified Profile.png', dpi=fig.dpi, bbox_inches='tight')
     plt.close(fig)
 
     return depths, lithologies
