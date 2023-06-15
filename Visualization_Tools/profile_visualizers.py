@@ -15,6 +15,8 @@ from Burgess_Model import tpmat as tp
 ## lithologies: a list of size N, containing the lithologies, as strings, corresponding to the
 ## boundaries defined in depths.
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
+## res: the desired resolution; determines the y-tick step-size. [m]
+## n: the number of (para)sequences.
 ## filepath [optional]: string containing the directory and filename to which the figure is saved.
 # =====================================================================================================
 # OUTPUT:
@@ -23,10 +25,10 @@ from Burgess_Model import tpmat as tp
 ## classes: a list of all unique facies classes, size F.
 
 
-def vertical_profile(depths: list, lithologies: list, layout: dict, filepath: str = None):
+def vertical_profile(depths: list, lithologies: list, layout: dict, res: float, n: int, filepath: str = None):
     # Create figure and axes:
     fig, ax = plt.subplots()
-    fig.set_size_inches(2.5+0.01*depths[-1], 0.3*depths[-1])
+    fig.set_size_inches(0.1*(4*n), 4*n)
     # Add a rectangle patch for each lithological unit:
     classes = []
     for i in range(len(lithologies)):
@@ -36,7 +38,8 @@ def vertical_profile(depths: list, lithologies: list, layout: dict, filepath: st
             classes.append(lithologies[i])
 
     # Set labels, limits:
-    ax.set_yticks(np.arange(0, depths[-1] + 1, 1))
+    y_step = 10*res
+    ax.set_yticks(np.arange(0, depths[-1] + y_step, y_step))
     ax.set_ylim(max(depths), min(depths))
     ax.set_ylabel('Depth [m]')
     ax.set_xlim(0, 0.5)
@@ -67,6 +70,8 @@ def vertical_profile(depths: list, lithologies: list, layout: dict, filepath: st
 ## boundaries defined in depths.
 ## facies_dict: a dictionary with as key:value pairs 'lithology:code'.
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
+## res: the desired resolution; determines the y-tick step-size. [m]
+## n: the number of (para)sequences.
 ## filepath [optional]: string containing the directory and filename to which the figure is saved.
 ## title [optional]: sets the title of the profile.
 # =====================================================================================================
@@ -75,11 +80,11 @@ def vertical_profile(depths: list, lithologies: list, layout: dict, filepath: st
 ## A visualization of the coded profile using specified colors, hatches and assigned numbering.
 
 
-def coded_profile(depths: list, lithologies: list, classes: list, facies_dict: dict, layout: dict,
-                  filepath: str = None, title: str = None):
+def coded_profile(depths: list, lithologies: list, classes: list, facies_dict: dict, layout: dict, res: float,
+                  n: int, filepath: str = None, title: str = None):
     # Create figure and axes:
     fig, ax = plt.subplots()
-    fig.set_size_inches(4+0.01*depths[-1], 0.3*depths[-1])
+    fig.set_size_inches(0.1*(4*n), 4*n)
     # Add a rectangle patch for each lithological unit, with length according to its code:
     for i in range(len(lithologies)):
         ax.add_patch(patches.Rectangle((0, depths[i]), facies_dict[lithologies[i]] + 1, depths[i + 1] - depths[i],
@@ -95,7 +100,8 @@ def coded_profile(depths: list, lithologies: list, classes: list, facies_dict: d
     # Setting ticks, limits, labels:
     ax.set_xticks(range(len(classes) + 1))
     ax.set_xlim(0, len(classes))
-    ax.set_yticks(np.arange(0, depths[-1] + 1, 1))
+    y_step = 10*res
+    ax.set_yticks(np.arange(0, depths[-1] + y_step, y_step))
     ax.set_ylabel('Depth [m]')
     ax.set_ylim(max(depths), min(depths))
 

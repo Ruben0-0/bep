@@ -16,6 +16,7 @@ import seqreader
 ## derivs: a list of length 3 containing 1st, 2nd, and 3rd derivative profiles.
 ## para_boundaries: a list of length n+1 containing the x-values of the parasequence boundaries (includes x=0).
 ## dicts: a list of length n containing for each parasequence a dictionary with value ranges/signs for each lithology.
+## res: the desired resolution; significant for the addition of noise in later steps. [m]
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
 ## filepath [optional]: string containing the directory and filename to which the figures are saved.
 # =====================================================================================================================
@@ -26,7 +27,7 @@ import seqreader
 ## defined by the boundaries in 'depths'. Length (N).
 
 
-def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: list, layout: dict,
+def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: list, layout: dict, res: int,
                    gamma: float = 0, filepath: str = None):
     # Make a copy of the pre-noise profile and unpack the derivatives and normalize them:
     pre_noise_profile = y_profile
@@ -64,7 +65,7 @@ def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: l
     # Now plot both the noisified y-profile and the noise profile:
     ## Create figure and axes:
     fig, axes = plt.subplots(nrows=1, ncols=3)
-    fig.set_size_inches(6, 5 * (len(dicts)))
+    fig.set_size_inches(6, 4*(len(dicts)))
     ## Plot the noisified y-profile and the noise profile:
     for i in range(len(lithologies)):
         indices = [j for j in range(len(x_profile)) if (x_profile[j] >= depths[i]) and (x_profile[j] <= depths[i + 1])]
@@ -93,7 +94,8 @@ def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: l
     ## Add limits, labels, titles:
     ### Axes 0:
     axes[0].set_xlim(-1, 1)
-    axes[0].set_yticks(np.arange(0, depths[-1] + 1, 1))
+    y_step = 10*res
+    axes[0].set_yticks(np.arange(0, depths[-1] + y_step, y_step))
     axes[0].set_ylim(max(x_profile), min(x_profile))
     axes[0].set_xlabel('Noise Value [-]')
     axes[0].set_ylabel('Depth [m]')

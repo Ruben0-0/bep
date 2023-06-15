@@ -14,8 +14,8 @@ import synthtools as syn
 ## depths: a list of (positive) depth values signifying the lithology para_boundaries in 1 parasequence. Size M+1. [m]
 ## lithologies: a list of (unique) lithologies corresponding to the para_boundaries in 'depths'. Size M.
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
-## n: total number of parasequences in the profile.
 ## res: the desired resolution; significant for the addition of noise in later steps. [m]
+## n: total number of (para)sequences in the profile.
 ## alpha [optional]: measure of total parasequence thickness variation. Alpha is the standard deviation
 ## for a Gaussian distribution with as mean the given parasequence thickness in 'depths'. Default=0.
 ## beta [optional]: measure of individual layer thickness variance. Default=0.
@@ -30,7 +30,7 @@ import synthtools as syn
 ## dicts: a list of length n containing for each parasequence a dictionary with value ranges for each lithology.
 
 
-def sequencer(depths: list, lithologies: list, layout: dict, n: int, res: float, alpha: float = 0, beta: float = 0,
+def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int, alpha: float = 0, beta: float = 0,
               filepath: str = None):
     # Calibrate 'depths' to start at 0:
     if depths[0] != 0:
@@ -40,7 +40,7 @@ def sequencer(depths: list, lithologies: list, layout: dict, n: int, res: float,
     ## Wavelength (total thickness) distribution:
     x1 = np.linspace(depths[-1] - 3 * alpha, depths[-1] + 3 * alpha, 200)
     y1 = stats.norm.pdf(x1, depths[-1], alpha)
-    plt.plot(x1, y1, label='mean = ' + str(depths[-1]) + ', sigma = ' + str(alpha), lw=2)
+    plt.plot(x1, y1, label='mean = ' + str(depths[-1]) + ', ' + r'$\sigma$ = ' + r'$\alpha$ = ' + str(alpha), lw=2)
     plt.vlines(depths[-1], 0, max(y1) + 0.1 * max(y1), linestyle='--', color='black', lw=1)
     plt.xlim(min(x1), max(x1))
     plt.ylim(0, max(y1) + 0.1 * max(y1))
@@ -79,7 +79,7 @@ def sequencer(depths: list, lithologies: list, layout: dict, n: int, res: float,
             y_max = max(y2)
     plt.xlim(min(x2), max(x2))
     plt.ylim(0, y_max + 0.3 * y_max)
-    plt.title('Layer Thickness Distributions, sigma = ' + str(beta), weight='bold')
+    plt.title('Layer Thickness Distributions, ' + r'$\sigma$ = ' + r'$\beta$ = ' + str(beta), weight='bold')
     plt.xlabel('Layer Thickness [m]')
     if filepath is None:
         plt.show()
@@ -174,7 +174,7 @@ def sequencer(depths: list, lithologies: list, layout: dict, n: int, res: float,
         plt.yticks(np.arange(min(x_parasequence[0]), max(x_parasequence[-1]) + res * 10, res * 10))
         plt.ylim(max(x_parasequence[-1]), min(x_parasequence[0]))
         plt.ylabel('Depth [m]')
-        plt.title('Parasequence no.' + str(i + 1), weight='bold')
+        plt.title('(Para)sequence no.' + str(i + 1), weight='bold')
         if filepath is None:
             plt.show()
         else:
@@ -188,7 +188,7 @@ def sequencer(depths: list, lithologies: list, layout: dict, n: int, res: float,
     # Plot the full sinusoid profile:
     ## Create figure and axes:
     fig, axes = plt.subplots(nrows=1, ncols=2)
-    fig.set_size_inches(6, 15)
+    fig.set_size_inches(6, 4*len(dicts))
     ## Plot the sine curve and layer boundaries:
     ### For every parasequence:
     for i in range(n):
@@ -220,7 +220,7 @@ def sequencer(depths: list, lithologies: list, layout: dict, n: int, res: float,
     axes[0].set_ylim(max(x_segmented[-1][-1]), min(x_segmented[0][0]))
     axes[0].set_ylabel('Depth [m]')
     axes[0].set_xlabel('Code value [-]')
-    axes[0].set_title('Vertical Profile - ' + str(n) + ' Parasequences', weight='bold', y=1.02)
+    axes[0].set_title('Vertical Profile - ' + str(n) + ' (Para)sequences', weight='bold', y=1.02)
     axes[0].text(0.05, -0.5, r'$\alpha$ = ' + str(alpha) + ' , ' + r'$\beta$ = ' + str(beta), fontsize=13,
                  weight='semibold', ha='center')
     ### Axes 1:

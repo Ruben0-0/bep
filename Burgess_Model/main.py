@@ -21,6 +21,8 @@ import markovmetric as mo
 ## lithologies: a list containing the lithologies, as strings, corresponding to the lithological units
 ## defined by the boundaries in 'depths'. Length (N).
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
+## res: the desired resolution. [m]
+## n: the number of (para)sequences.
 ## filepath: string containing the directory and filename to which the figures are saved.
 # =====================================================================================================
 # OUTPUT:
@@ -45,9 +47,9 @@ import markovmetric as mo
 ##          - The vertical profile in coded format, in similar fashion to Burgess (2016), saved in 'filepath'.
 
 
-def main(depths: list, lithologies: list, layout: dict, filepath: str):
+def main(depths: list, lithologies: list, layout: dict, res: float, n: int, filepath: str):
     # Visualize the vertical profile and obtain the facies classes:
-    classes = vp.vertical_profile(depths, lithologies, layout, filepath=filepath + '\Vertical Profile.png')
+    classes = vp.vertical_profile(depths, lithologies, layout, res, n, filepath=filepath + '\Vertical Profile.png')
     F = len(classes)
 
     # For every possible facies numbering, calculate a TP matrix and corresponding Markov order:
@@ -78,10 +80,10 @@ def main(depths: list, lithologies: list, layout: dict, filepath: str):
     markov_storage = np.asarray(markov_storage)
 
     # Now create a distribution of m values and visualize:
-    n, bins, edges = plt.hist(markov_storage, bins=24, color='green', alpha=0.7, edgecolor='black',
-                              weights=np.ones_like(markov_storage) / math.factorial(F))
+    n_hist, bins, edges = plt.hist(markov_storage, bins=24, color='green', alpha=0.7, edgecolor='black',
+                                   weights=np.ones_like(markov_storage) / math.factorial(F))
     plt.xlim(0, np.max(markov_storage))
-    plt.ylim(0, max(n) + 0.2*max(n))
+    plt.ylim(0, max(n_hist) + 0.2 * max(n_hist))
     plt.xlabel('Markov Order Metric m [-]')
     plt.ylabel('Relative Frequency [-]')
     if filepath is None:
@@ -109,12 +111,12 @@ def main(depths: list, lithologies: list, layout: dict, filepath: str):
     print('\nCreating figures...')
     for i in range(len(result2)):
         ## Create coded profile and save the figure:
-        vp.coded_profile(depths, lithologies, classes, result2[i][2], layout,
-                         filepath=filepath + '\Coded Profiles\Coded Profile No.' + str(i+1) + '.png',
+        vp.coded_profile(depths, lithologies, classes, result2[i][2], layout, res, n,
+                         filepath=filepath + '\Coded Profiles\Coded Profile No.' + str(i + 1) + '.png',
                          title='Markov Order Metric \n m = ' + str(round(result2[i][1], 2)))
         ## Create visualization of the TP matrix and save the figure:
         mv.matrix_imager(result2[i][0], classes, result2[i][2],
-                         filepath=filepath + '\TP Matrices\TP Matrix No.' + str(i+1) + '.png',
+                         filepath=filepath + '\TP Matrices\TP Matrix No.' + str(i + 1) + '.png',
                          title='Markov Order Metric m = ' + str(round(result2[i][1], 2)))
 
         ## Progress bar:
