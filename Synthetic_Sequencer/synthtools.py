@@ -99,6 +99,28 @@ def assign_sign(profile, threshold):
         sign = 'both'
     return sign
 
+
+# flagged_profile = coded_to_flagged(depth_profile, code_profile, code_dict):
+# =====================================================================================================
+# INPUT:
+# =====================================================================================================
+## code_profile: an array of length N, containing the facies codes for each depth value.
+## code_dict: a dictionary containing as key:value pairs 'code:lith'.
+# =====================================================================================================
+# OUTPUT:
+# =====================================================================================================
+## flagged_profile: a list of length N, containing for each depth value the lithology.
+
+
+def coded_to_flagged(code_profile, code_dict):
+    flagged_profile = []
+    # For each code, retrieve its corresponding lithology and add it to the list:
+    for i in range(len(code_profile)):
+        lith = code_dict[str(code_profile[i])]
+        flagged_profile.append(lith)
+    return flagged_profile
+
+
 # depths, lithologies = flagged_reader(depth_profile, flagged_profile):
 # ==========================================================================================================
 # INPUT:
