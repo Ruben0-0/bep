@@ -1,6 +1,9 @@
 import numpy as np
 from random import randrange
 
+# Custom imports:
+import synthtools as syn
+
 
 # flag, sieves = sieve(y, dy_dx, dy_dx2, dy_dx3, para_dict):
 # =====================================================================================================================
@@ -180,13 +183,6 @@ def profile_reader(x_profile, y_profile, derivs, para_boundaries, dicts: list):
             flagged_profile.append(flag)
 
     # Now, from the flagged profile, create a list of boundary depths and a list of lithologies:
-    depths = [0]
-    lithologies = [flagged_profile[0]]
-    for i in range(1, len(flagged_profile)):
-        ## If there is a change in facies, add a value to 'depths':
-        if flagged_profile[i] != flagged_profile[i - 1]:
-            depths.append(x_profile[i])
-            lithologies.append(flagged_profile[i])
-    depths.append(x_profile[-1])
+    depths, lithologies = syn.flagged_reader(x_profile, flagged_profile)
 
     return depths, lithologies, flagged_profile

@@ -99,3 +99,27 @@ def assign_sign(profile, threshold):
         sign = 'both'
     return sign
 
+# depths, lithologies = flagged_reader(depth_profile, flagged_profile):
+# ==========================================================================================================
+# INPUT:
+# ==========================================================================================================
+## depth_profile: an array of length N, containing depth values. [m]
+## flagged_profile: a list of length N, containing for each depth value the lithology as string.
+# ==========================================================================================================
+# OUTPUT:
+# ==========================================================================================================
+## depths: a list of length (F + 1) containing the depths (in meters) at which lithology boundaries occur.
+## lithologies: a list of length F containing the lithologies, as strings, corresponding to the lithological units
+## defined by the boundaries in 'depths'.
+
+
+def flagged_reader(depth_profile, flagged_profile):
+    depths = [0]
+    lithologies = [flagged_profile[0]]
+    for i in range(1, len(flagged_profile)):
+        ## If there is a change in facies, add a value to 'depths' and add this facies class to 'lithologies':
+        if flagged_profile[i] != flagged_profile[i - 1]:
+            depths.append(depth_profile[i])
+            lithologies.append(flagged_profile[i])
+    depths.append(depth_profile[-1])
+    return depths, lithologies
