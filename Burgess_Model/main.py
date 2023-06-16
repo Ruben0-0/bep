@@ -56,7 +56,7 @@ def main(depths: list, lithologies: list, layout: dict, res: float, n: int, file
     tp_mat_storage = []  # (Will contain arrays)
     markov_storage = []  # (Will contain scalars)
     dict_storage = []  # (Will contain dictionaries)
-    print('Computing TP matrices...')
+    print('\nComputing TP matrices...')
     i = 0
     for numbering in permutations(range(F)):
         facies_dict, tp_mat = tp.tp_matrix(lithologies, classes, numbering)
