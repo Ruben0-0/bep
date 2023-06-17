@@ -115,7 +115,7 @@ def main(depths: list, lithologies: list, layout: dict, res: float, n: int, file
                          filepath=filepath + '\Coded Profiles\Coded Profile No.' + str(i + 1) + '.png',
                          title='Markov Order Metric \n m = ' + str(round(result2[i][1], 2)))
         ## Create visualization of the TP matrix and save the figure:
-        mv.matrix_imager(result2[i][0], classes, result2[i][2],
+        mv.matrix_imager(result2[i][0], classes, result2[i][2], layout,
                          filepath=filepath + '\TP Matrices\TP Matrix No.' + str(i + 1) + '.png',
                          title='Markov Order Metric m = ' + str(round(result2[i][1], 2)))
 
