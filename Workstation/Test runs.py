@@ -5,10 +5,10 @@ from Burgess_Model import main as burg
 # TEST RUN 1; F = 4:
 filepath = 'D:\AESB\AESB3\BEP\Figures'
 ## DEFINE PARASEQUENCE:
-para_depths = [0, 2.5, 7, 10, 13]
-para_lithologies = ['SST', 'SHSST', 'SLT', 'SH']
-colors = ['gold', 'goldenrod', 'chocolate', 'sienna']
-hatches = ['.', '.-', '-.-', '--', 'o.']
+para_depths = [0, 2.5, 7, 10, 13, 20, 23]
+para_lithologies = ['SST', 'SHSST', 'SLT', 'SH', 'VAAD', 'NEL']
+colors = ['gold', 'goldenrod', 'chocolate', 'sienna', 'purple', 'maroon']
+hatches = ['.', '.-', '-.-', '--', 'o.', '*.']
 layout = dict()
 for i in range(len(para_lithologies)):
     layout[para_lithologies[i]] = [colors[i], hatches[i]]

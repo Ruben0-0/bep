@@ -8,7 +8,7 @@ def matrix_imager(tp_matrix, classes, facies_dict: dict, layout: dict, filepath:
     # The number of facies classes F:
     F = len(classes)
     # Create figure and axes:
-    fig, axes = plt.subplots(nrows=1, ncols=2, gridspec_kw={'width_ratios': [5, 1]})
+    fig, axes = plt.subplots(nrows=1, ncols=2, gridspec_kw={'width_ratios': [F, 1]})
     fig.set_size_inches(5, 5)
 
     # Visualize the matrix:
