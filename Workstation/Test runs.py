@@ -20,5 +20,10 @@ x, y, derivatives, bounds, dictionaries = seq.sequencer(para_depths, para_lithol
                                                         alpha=0.4, beta=0.2, filepath=filepath)
 depths, lithologies = noise.gaussian_noise(x, y, derivatives, bounds, dictionaries, layout, res, gamma=0.5,
                                            filepath=filepath)
+## Create sequence w. perfect cyclicity:
+depths2 = para_depths
+for i in range(2*len(para_depths)-2):
+    depths2.append(depths2[-1] + (depths2[i+1]-depths2[i]))
+lithologies2 = para_lithologies + para_lithologies + para_lithologies
 ## Run Burgess model:
 result1, result2 = burg.main(depths, lithologies, layout, res, n, filepath)
