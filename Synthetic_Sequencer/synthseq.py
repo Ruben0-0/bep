@@ -5,24 +5,28 @@ from matplotlib import patches
 from matplotlib.patches import Patch
 # Custom imports:
 import synthtools as syn
+from Numerical_Tools import stats as st
 
 
 # sequencer(depths, lithologies, n, res):
-# =====================================================================================================
+# ======================================================================================================================
 # INPUT:
-# =====================================================================================================
+# ======================================================================================================================
 ## depths: a list of (positive) depth values signifying the lithology para_boundaries in 1 parasequence. Size M+1. [m]
 ## lithologies: a list of (unique) lithologies corresponding to the para_boundaries in 'depths'. Size M.
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
 ## res: the desired resolution; significant for the addition of noise in later steps. [m]
 ## n: total number of (para)sequences in the profile.
 ## alpha [optional]: measure of total parasequence thickness variation. Alpha is the standard deviation
-## for a Gaussian distribution with as mean the given parasequence thickness in 'depths'. Default=0.
+##   for a Gaussian distribution with as mean the given parasequence thickness in 'depths'. Default=0.
 ## beta [optional]: measure of individual layer thickness variance. Default=0.
+## omega [optional]: measure of skewness for all distributions. Omega > 0 ==> positive skewness and vice versa.
+##   if omega = 0, distributions are standard normal.
 ## filepath [optional]: string containing the directory and filename to which the figures are saved.
-# =====================================================================================================
+# ======================================================================================================================
+
 # OUTPUT:
-# =====================================================================================================
+# ======================================================================================================================
 ## x_profile: the x-axis of the complete vertical profile.
 ## y_profile: the y-axis of the complete vertical profile.
 ## derivatives: a list of length 3 containing 1st, 2nd, and 3rd derivative profiles.
@@ -31,15 +35,15 @@ import synthtools as syn
 
 
 def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int, alpha: float = 0, beta: float = 0,
-              filepath: str = None):
+              omega: float = 0, filepath: str = None):
     # Calibrate 'depths' to start at 0:
     if depths[0] != 0:
         depths -= depths[0]
 
     # Plot the normal distributions used for wavelength and layer thickness distribution:
     ## Wavelength (total thickness) distribution:
-    x1 = np.linspace(depths[-1] - 3 * alpha, depths[-1] + 3 * alpha, 200)
-    y1 = stats.norm.pdf(x1, depths[-1], alpha)
+    x1 = np.linspace(depths[-1] - 3 * alpha, depths[-1] + 3 * alpha + omega/20 * depths[-1], 200)
+    y1 = st.skewed_norm_pdf(x1, omega, depths[-1], alpha)
     plt.plot(x1, y1, label='mean = ' + str(depths[-1]) + ', ' + r'$\sigma$ = ' + r'$\alpha$ = ' + str(alpha), lw=2)
     plt.vlines(depths[-1], 0, max(y1) + 0.1 * max(y1), linestyle='--', color='black', lw=1)
     plt.xlim(min(x1), max(x1))
@@ -66,7 +70,7 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     y_max = 0
     for i in range(len(lithologies)):
         ### Plot the distribution for each lithology:
-        y2 = stats.norm.pdf(x2, depths[i + 1] - depths[i], beta)
+        y2 = st.skewed_norm_pdf(x2, omega, depths[i + 1] - depths[i], beta)
         plt.plot(x2, y2, label='mean = ' + str(round(depths[i + 1] - depths[i], 2)) + ', sigma= ' + str(beta),
                  color=layout[lithologies[i]][0], lw=2)
         plt.axvline(x=depths[i + 1] - depths[i], linestyle='--', lw=1, color=layout[lithologies[i]][0])
@@ -101,14 +105,14 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     dicts = []
     for i in range(n):
         ### Grab a total thickness from the Gaussian distribution:
-        d_tot = np.random.normal(depths[-1], alpha)
+        d_tot = st.skewed_norm_rvs(omega, depths[-1], alpha)
 
         ### Determine the layer boundaries within the ith parasequence:
         layers = [0]
         para_thickness = 0
         for j in range(len(lithologies)):
             #### Grab layer thicknesses from their respective Gaussian distributions:
-            layer_thickness = np.random.normal(depths[j + 1] - depths[j], beta)
+            layer_thickness = st.skewed_norm_rvs(omega, depths[j + 1] - depths[j], beta)
             para_thickness += layer_thickness
             layers.append(para_thickness)
         #### Normalize to the parasequence thickness:
