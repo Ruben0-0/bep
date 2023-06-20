@@ -43,9 +43,16 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     # Plot the normal distributions used for wavelength and layer thickness distribution:
     ## Wavelength (total thickness) distribution:
     x1 = np.linspace(depths[-1] - 3 * alpha, depths[-1] + 3 * alpha + omega/20 * depths[-1], 200)
-    y1 = st.skewed_norm_pdf(x1, omega, depths[-1], alpha)
-    plt.plot(x1, y1, label='mean = ' + str(depths[-1]) + ', ' + r'$\sigma$ = ' + r'$\alpha$ = ' + str(alpha), lw=2)
-    plt.vlines(depths[-1], 0, max(y1) + 0.1 * max(y1), linestyle='--', color='black', lw=1)
+    y1, mu_corrected = st.skewed_norm_pdf(x1, omega, depths[-1], alpha)
+    ## Retrieve 25th and 75th percentiles and use these as means for two separate distributions:
+    y2, y3, p_25, p_75 = st.pdf_splitter(x1, omega, mu_corrected, alpha)
+    ## Plot the distributions in one graph:
+    plt.plot(x1, y1, label=r'$\mu$ = ' + str(depths[-1]) + ', ' + r'$\sigma$ = ' + str(alpha), lw=2, color='maroon')
+    plt.plot(x1, y2, label=r'$\mu$ = ' + str(round(p_25, 1)) + ', ' + r'$\sigma$ = ' + str(alpha), lw=1.8, color='pink')
+    plt.plot(x1, y3, label=r'$\mu$ = ' + str(round(p_75, 1)) + ', ' + r'$\sigma$ = ' + str(alpha), lw=1.8, color='pink')
+    plt.vlines(depths[-1], 0, max(y1) + 0.1 * max(y1), linestyle='--', color='maroon', lw=1)
+    plt.vlines(p_25, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=0.8)
+    plt.vlines(p_75, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=0.8)
     plt.xlim(min(x1), max(x1))
     plt.ylim(0, max(y1) + 0.1 * max(y1))
     plt.xlabel('Parasequence Thickness [m]')
@@ -70,7 +77,7 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     y_max = 0
     for i in range(len(lithologies)):
         ### Plot the distribution for each lithology:
-        y2 = st.skewed_norm_pdf(x2, omega, depths[i + 1] - depths[i], beta)
+        y2, mu = st.skewed_norm_pdf(x2, omega, depths[i + 1] - depths[i], beta)
         plt.plot(x2, y2, label='mean = ' + str(round(depths[i + 1] - depths[i], 2)) + ', sigma= ' + str(beta),
                  color=layout[lithologies[i]][0], lw=2)
         plt.axvline(x=depths[i + 1] - depths[i], linestyle='--', lw=1, color=layout[lithologies[i]][0])
@@ -105,7 +112,11 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     dicts = []
     for i in range(n):
         ### Grab a total thickness from the Gaussian distribution:
-        d_tot = st.skewed_norm_rvs(omega, depths[-1], alpha)
+        #### Compensational stacking: alternate between the p25 and p75 distributions:
+        if (i % 2) == 0:
+            d_tot = st.skewed_norm_rvs(omega, p_25, alpha)
+        else:
+            d_tot = st.skewed_norm_rvs(omega, p_75, alpha)
 
         ### Determine the layer boundaries within the ith parasequence:
         layers = [0]

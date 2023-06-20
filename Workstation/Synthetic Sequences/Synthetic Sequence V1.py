@@ -17,8 +17,8 @@ for i in range(len(seq_facies)):
 res = 5
 n = 4
 # Create synthetic sequence:
-x, y, derivatives, boundaries, dicts = seq.sequencer(seq_depths, seq_facies, layout, res, n, alpha=40, beta=2,
-                                                     filepath=filepath)
+x, y, derivatives, boundaries, dicts = seq.sequencer(seq_depths, seq_facies, layout, res, n, alpha=80, beta=2,
+                                                     omega=4, filepath=filepath)
 
 # Add various amounts of noise:
 depths1, lithologies1 = noise.gaussian_noise(x, y, derivatives, boundaries, dicts, layout, res, gamma=0,
