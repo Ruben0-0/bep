@@ -23,9 +23,9 @@ def matrix_imager(tp_matrix, classes, facies_dict: dict, layout: dict, filepath:
     x_labels = []
     for i in range(F):
         x_labels.append(classes[facies_dict[classes[i]]])
-    axes[0].set_xticklabels(x_labels, weight='bold', va='center', ha='center')
+    axes[0].set_xticklabels(x_labels, weight='bold')
     x_labels.reverse()
-    axes[0].set_yticklabels(x_labels, weight='bold', va='center')
+    axes[0].set_yticklabels(x_labels, weight='bold')
     ## Patch out the j=0 diagonal:
     for i in range(F + 1):
         axes[0].add_patch(patches.Rectangle(((-1.5 + i), ((F - 0.5) - i)), 1, 1, edgecolor='black',
@@ -51,18 +51,39 @@ def matrix_imager(tp_matrix, classes, facies_dict: dict, layout: dict, filepath:
                 lines.Line2D([0.5 + j, F - 0.5], [F - 0.5, 0.5 + j], lw=1, linestyle='--', color='gray', alpha=0.6))
             axes[0].text(F - 0.5 + 0.05, 0.5 + j + 0.025, 'j=' + str(j + 1))
             j += 1
+
     ## Add lithology bar next to matrix:
     lith_bar = np.ones((F, 1))
     axes[1].imshow(lith_bar)
-    for i in range(len(x_labels)):
-        axes[1].add_patch(patches.Rectangle((-0.5, -0.5 + i), 1, 1, edgecolor='black',
-                                            hatch=layout[x_labels[i]][1], facecolor=layout[x_labels[i]][0]))
-        # axes[1].text(1.1, ((i+1)*1.25 - i*1.25)/2 + i*1.25 + 0.02, x_labels[i], weight='semibold', ha='center',
-        #             va='center')
+    ### Find the sum value in the (j=1,j=-F) and (j=-1,j=F) diagonal pairs:
+    diag_sum_pos = tp_matrix[0, 0]
+    diag_sum_neg = tp_matrix[F-1, F-1]
+    for i in range(F-1):
+        #### The j=1th diagonal:
+        diag_sum_pos += tp_matrix[(F-1)-i, 1+i]
+        #### The j=-1th diagonal:
+        diag_sum_neg += tp_matrix[(F-2)-i, i]
+    ### If the (j=-1,j=F) diagonal has the highest sum value, add lithology bar according to row labels:
+    if diag_sum_pos <= diag_sum_neg:
+        for i in range(len(x_labels)):
+            axes[1].add_patch(patches.Rectangle((-0.5, -0.5 + i), 1, 1, edgecolor='black',
+                                                hatch=layout[x_labels[i]][1], facecolor=layout[x_labels[i]][0]))
+            axes[1].text(1.1, (-0.5 + i) + 0.5, x_labels[i], weight='semibold', ha='center', va='center')
+    ### Otherwise, add lithology bar in reverse order of the row labels:
+    else:
+        for i in range(len(x_labels)):
+            axes[1].add_patch(patches.Rectangle((-0.5, (F-1.5)-i), 1, 1, edgecolor='black',
+                                                hatch=layout[x_labels[i]][1], facecolor=layout[x_labels[i]][0]))
+            axes[1].text(1.1, ((F-0.5)-i) - 0.5, x_labels[i], weight='semibold', ha='center', va='center')
     axes[1].set_xticks([])
     axes[1].set_yticks([])
+
+    ## Set titles:
+    axes[0].set_title(title, y=1.05, weight='bold', fontsize='large')
+    axes[1].set_title("Ideal \n Sequence:", y=1.03, weight='semibold', fontsize='medium')
+
+
     # Save figure to selected filepath:
-    axes[0].set_title(title, y=1.05, weight='bold')
     plt.savefig(filepath, bbox_inches='tight')
     plt.close(fig)
     return
