@@ -1,6 +1,5 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from scipy import stats
 from matplotlib import patches
 from matplotlib.patches import Patch
 # Custom imports:
@@ -8,7 +7,8 @@ import synthtools as syn
 from Numerical_Tools import stats as st
 
 
-# sequencer(depths, lithologies, n, res):
+# x, y, derivatives, para_boundaries, dicts = sequencer(depths, lithologies, layout, res, n, alpha=0, beta=0, omega=0,
+#                                                       filepath=None):
 # ======================================================================================================================
 # INPUT:
 # ======================================================================================================================
@@ -17,18 +17,17 @@ from Numerical_Tools import stats as st
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
 ## res: the desired resolution; significant for the addition of noise in later steps. [m]
 ## n: total number of (para)sequences in the profile.
-## alpha [optional]: measure of total parasequence thickness variation. Alpha is the standard deviation
-##   for a Gaussian distribution with as mean the given parasequence thickness in 'depths'. Default=0.
-## beta [optional]: measure of individual layer thickness variance. Default=0.
+## alpha [optional]: measure of total parasequence thickness variation. Alpha is the standard deviation for a Gaussian
+##                   distribution with as mean the given parasequence thickness in 'depths'. Default = 0.
+## beta [optional]: measure of individual layer thickness variance. Default = 0.
 ## omega [optional]: measure of skewness for all distributions. Omega > 0 ==> positive skewness and vice versa.
-##   if omega = 0, distributions are standard normal.
+##                   If omega = 0, distributions are standard normal.
 ## filepath [optional]: string containing the directory and filename to which the figures are saved.
 # ======================================================================================================================
-
 # OUTPUT:
 # ======================================================================================================================
-## x_profile: the x-axis of the complete vertical profile.
-## y_profile: the y-axis of the complete vertical profile.
+## x: the x-axis of the complete vertical profile.
+## y: the y-axis of the complete vertical profile.
 ## derivatives: a list of length 3 containing 1st, 2nd, and 3rd derivative profiles.
 ## para_boundaries: a list of length n+1 containing the x-values of the parasequence boundaries (includes x=0).
 ## dicts: a list of length n containing for each parasequence a dictionary with value ranges for each lithology.

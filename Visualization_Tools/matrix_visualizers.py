@@ -4,6 +4,22 @@ from matplotlib import patches
 from matplotlib import lines
 
 
+# matrix_imager(tp_matrix, classes, facies_dict, layout, filepath, title=None):
+# ======================================================================================================================
+# INPUT:
+# ======================================================================================================================
+## tp_matrix: a transition probability matrix with shape (F, F).
+## classes: a list of all unique facies classes, size F.
+## facies_dict: a dictionary with as key:value pairs 'lithology:code'.
+## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
+## filepath: string containing the directory and filename to which the figure is saved.
+## title: string, sets the title of the figure.
+# ======================================================================================================================
+# OUTPUT:
+# ======================================================================================================================
+## Visualizes 'tp_matrix' with probability values, colormap, lithology labels and an ideal sequence lithology bar.
+
+
 def matrix_imager(tp_matrix, classes, facies_dict: dict, layout: dict, filepath: str, title: str = None):
     # The number of facies classes F:
     F = len(classes)
@@ -81,7 +97,6 @@ def matrix_imager(tp_matrix, classes, facies_dict: dict, layout: dict, filepath:
     ## Set titles:
     axes[0].set_title(title, y=1.05, weight='bold', fontsize='large')
     axes[1].set_title("Ideal \n Sequence:", y=1.03, weight='semibold', fontsize='medium')
-
 
     # Save figure to selected filepath:
     plt.savefig(filepath, bbox_inches='tight')

@@ -2,25 +2,22 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import patches
 from matplotlib.patches import Patch
-from matplotlib import colors as cm
-# Custom imports:
-from Burgess_Model import tpmat as tp
 
 
-# classes = vertical_profile(depths, lithologies, layout):
-# =====================================================================================================
+# classes = vertical_profile(depths, lithologies, layout, res, n, filepath=None):
+# ======================================================================================================================
 # INPUT:
-# =====================================================================================================
+# ======================================================================================================================
 ## depths: a list containing the depths (in meters) at which lithology boundaries occur of size N + 1.
 ## lithologies: a list of size N, containing the lithologies, as strings, corresponding to the
-## boundaries defined in depths.
+##              boundaries defined in depths.
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
 ## res: the desired resolution; determines the y-tick step-size. [m]
 ## n: the number of (para)sequences.
 ## filepath [optional]: string containing the directory and filename to which the figure is saved.
-# =====================================================================================================
+# ======================================================================================================================
 # OUTPUT:
-# =====================================================================================================
+# ======================================================================================================================
 ## A visualization of the vertical profile using specified colors and hatches.
 ## classes: a list of all unique facies classes, size F.
 
@@ -61,22 +58,22 @@ def vertical_profile(depths: list, lithologies: list, layout: dict, res: float, 
     return classes
 
 
-# coded_profile(depths, lithologies, classes, facies_dict, layout, filepath):
-# =====================================================================================================
+# coded_profile(depths, lithologies, classes, facies_dict, layout, res, n, filepath=None, title=None):
+# ======================================================================================================================
 # INPUT:
-# =====================================================================================================
+# ======================================================================================================================
 ## depths: a list containing the depths (in meters) at which lithology boundaries occur of size N + 1.
 ## lithologies: a list of size N, containing the lithologies, as strings, corresponding to the
-## boundaries defined in depths.
+##              boundaries defined in depths.
 ## facies_dict: a dictionary with as key:value pairs 'lithology:code'.
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
 ## res: the desired resolution; determines the y-tick step-size. [m]
 ## n: the number of (para)sequences.
 ## filepath [optional]: string containing the directory and filename to which the figure is saved.
 ## title [optional]: sets the title of the profile.
-# =====================================================================================================
+# ======================================================================================================================
 # OUTPUT:
-# =====================================================================================================
+# ======================================================================================================================
 ## A visualization of the coded profile using specified colors, hatches and assigned numbering.
 
 

@@ -1,22 +1,21 @@
 import numpy as np
 from random import randrange
-
 # Custom imports:
 import synthtools as syn
 
 
 # flag, sieves = sieve(y, dy_dx, dy_dx2, dy_dx3, para_dict):
-# =====================================================================================================================
+# ======================================================================================================================
 # INPUT:
-# =====================================================================================================================
+# ======================================================================================================================
 ## y: y-value corresponding to some depth x.
 ## dy_dx: first derivative value corresponding to some depth x.
 ## dy_dx2: second derivative value corresponding to some depth x.
 ## dy_dx3: third derivative value corresponding to some depth x.
 ## para_dict: dictionary with lith:[y_range,  derivative signs] as key:value pairs.
-# =====================================================================================================================
+# ======================================================================================================================
 # OUTPUT:
-# =====================================================================================================================
+# ======================================================================================================================
 ## flag: assigned lithology after passing through the sieves.
 ## sieves: a list of length 4 containing lists with lithologies in each sieve.
 
@@ -73,15 +72,15 @@ def sieve(y: float, dy_dx: float, dy_dx2: float, dy_dx3: float, para_dict: dict)
 
 
 # flag = midpoint_sieve(y, sieve, para_dict):
-# =====================================================================================================================
+# ======================================================================================================================
 # INPUT:
-# =====================================================================================================================
+# ======================================================================================================================
 ## y: y-value corresponding to some depth x.
 ## sieve: list containing the lithologies in the first sieve (value-range sieve).
 ## para_dict: dictionary with lith:[y_range,  derivative signs] as key:value pairs.
-# =====================================================================================================================
+# ======================================================================================================================
 # OUTPUT:
-# =====================================================================================================================
+# ======================================================================================================================
 ## flag: assigned lithology after passing through the midpoint-sieve.
 
 
@@ -104,13 +103,13 @@ def midpoint_sieve(y, sieve, para_dict):
 
 
 # flag = bottom_sieve(sieves):
-# =====================================================================================================================
+# ======================================================================================================================
 # INPUT:
-# =====================================================================================================================
+# ======================================================================================================================
 ## sieves: a list of length 4 containing lists with lithologies in each sieve.
-# =====================================================================================================================
+# ======================================================================================================================
 # OUTPUT:
-# =====================================================================================================================
+# ======================================================================================================================
 ## flag: assigned lithology after passing through the bottom-sieve.
 
 
@@ -127,21 +126,21 @@ def bottom_sieve(sieves):
     return flag
 
 
-# depths, lithologies, flagged_profile = profile_reader(x_profile, y_profile, derivs, para_bondaries, dicts):
-# =====================================================================================================================
+# depths, lithologies, flagged_profile = profile_reader(x_profile, y_profile, derivs, para_boundaries, dicts):
+# ======================================================================================================================
 # INPUT:
-# =====================================================================================================================
+# ======================================================================================================================
 ## x_profile: the x-axis of the complete vertical profile.
 ## y_profile: the y-axis of the complete vertical profile.
 ## derivs: a list of length 3 containing 1st, 2nd, and 3rd derivative profiles.
 ## para_boundaries: a list of length n+1 containing the x-values of the parasequence boundaries (includes x=0).
 ## dicts: a list of length n containing for each parasequence a dictionary with value ranges/signs for each lithology.
-# =====================================================================================================================
+# ======================================================================================================================
 # OUTPUT:
-# =====================================================================================================================
+# ======================================================================================================================
 ## depths: a list containing the depths (in meters) at which lithology boundaries occur of length (N + 1).
 ## lithologies: a list containing the lithologies, as strings, corresponding to the lithological units
-## defined by the boundaries in 'depths'. Length (N).
+##              defined by the boundaries in 'depths'. Length (N).
 ## flagged_profile: a list containing for each grid-point an assigned lithology.
 
 

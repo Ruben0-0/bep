@@ -2,12 +2,16 @@ import numpy as np
 
 
 # facies__tp_mat = tp_matrix(depths, lithologies, classes, numbering):
+# ======================================================================================================================
 # INPUT:
+# ======================================================================================================================
 ## lithologies: a list of size N, containing the lithologies, as strings, corresponding to the
-# boundaries defined in depths.
+##              boundaries defined in depths.
 ## classes: a list of all unique facies classes, size F.
 ## numbering: a list of size F, containing the numbers assigned to each facies class, in order of 'classes'.
+# ======================================================================================================================
 # OUTPUT:
+# ======================================================================================================================
 ## facies_coding_dict: a dictionary with as key:value pairs 'lithology:code'.
 ## tp_matrix: a transition probability matrix, with row/col ordering according to assigned numbering of classes.
 

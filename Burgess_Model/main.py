@@ -14,19 +14,19 @@ import markovmetric as mo
 
 
 # result1, result2 = main(depths, lithologies, colors, patterns):
-# =====================================================================================================
+# ======================================================================================================================
 # INPUT:
-# =====================================================================================================
+# ======================================================================================================================
 ## depths: a list containing the depths (in meters) at which lithology boundaries occur of length (N + 1).
 ## lithologies: a list containing the lithologies, as strings, corresponding to the lithological units
-## defined by the boundaries in 'depths'. Length (N).
+##              defined by the boundaries in 'depths'. Length (N).
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
 ## res: the desired resolution. [m]
 ## n: the number of (para)sequences.
 ## filepath: string containing the directory and filename to which the figures are saved.
-# =====================================================================================================
+# ======================================================================================================================
 # OUTPUT:
-# =====================================================================================================
+# ======================================================================================================================
 ## result1: a list containing three entries:
 ##      1. tp_mat_storage: an array of length (F!), containing all TP matrices for all possible
 ##      row and column orders.
@@ -34,7 +34,7 @@ import markovmetric as mo
 ##      matrices in 'tp_mat_storage'.
 ##      3. dict_storage: a list of length (F!), containing dictionaries with the facies coding
 ##      of each TP matrix in 'tp_mat_storage'.
-## result2: a list containing the highest m-value results from the distribution. Each entry is
+## result2: a list containing the highest m-value results from the distribution (subset of result1). Each entry is
 ## of the format [tp_matrix, m, facies_dict]:
 ##      tp_matrix: the TP matrix.
 ##      m: the Markov order corresponding to the TP matrix (according to the equation in Burgess (2016)).

@@ -40,7 +40,7 @@ def skewed_norm_pdf(x, a, mu, sigma):
 
 
 def skewed_norm_rvs(a, mu, sigma):
-    # Calculate mean for a skewed normal distribution using scipy's skewednorm function:
+    # Calculate mean for a skewed normal distribution using scipy's skewnorm function:
     shifted_mean = stats.skewnorm.mean(a, loc=mu, scale=sigma)
     # Calculate the correct loc input to obtain a mean of 'mu':
     mu_corrected = mu - (shifted_mean - mu)

@@ -3,28 +3,29 @@ from matplotlib import pyplot as plt
 from matplotlib import patches
 from matplotlib.patches import Patch
 # Custom imports:
-import synthseq as seq
 import seqreader
 
 
-# depths, lithologies = gaussian_noise(x_profile, y_profile, derivs, para_boundaries, dicts, layout, gamma):
-# =====================================================================================================================
+# depths, lithologies = gaussian_noise(x_profile, y_profile, derivs, para_boundaries, dicts, layout, res, gamma=0,
+#                                      filepath=None):
+# ======================================================================================================================
 # INPUT:
-# =====================================================================================================================
+# ======================================================================================================================
 ## x_profile: the x-axis of the complete vertical profile.
 ## y_profile: the y-axis of the complete vertical profile.
 ## derivs: a list of length 3 containing 1st, 2nd, and 3rd derivative profiles.
 ## para_boundaries: a list of length n+1 containing the x-values of the parasequence boundaries (includes x=0).
 ## dicts: a list of length n containing for each parasequence a dictionary with value ranges/signs for each lithology.
-## res: the desired resolution; significant for the addition of noise in later steps. [m]
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
+## res: the desired resolution; significant for the addition of noise in later steps. [m]
+## gamma [optional]: sets the standard deviation for the Gaussian noise distribution. Default = 0.
 ## filepath [optional]: string containing the directory and filename to which the figures are saved.
-# =====================================================================================================================
+# ======================================================================================================================
 # OUTPUT:
-# =====================================================================================================================
+# ======================================================================================================================
 ## depths: a list containing the depths (in meters) at which lithology boundaries occur of length (N + 1).
 ## lithologies: a list containing the lithologies, as strings, corresponding to the lithological units
-## defined by the boundaries in 'depths'. Length (N).
+##              defined by the boundaries in 'depths'. Length (N).
 
 
 def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: list, layout: dict, res: int,
