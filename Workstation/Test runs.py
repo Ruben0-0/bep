@@ -13,17 +13,20 @@ layout = dict()
 for i in range(len(para_lithologies)):
     layout[para_lithologies[i]] = [colors[i], hatches[i]]
 ## Resolution and number of parasequences:
-res = 0.25
-n = 5
+res = 0.1
+n = 8
 ## Create synthetic sequence:
 x, y, derivatives, bounds, dictionaries = seq.sequencer(para_depths, para_lithologies, layout, res, n,
-                                                        alpha=1.5, beta=0.2, omega=5, filepath=filepath)
-depths, lithologies = noise.gaussian_noise(x, y, derivatives, bounds, dictionaries, layout, res, gamma=0.5,
+                                                        alpha=5, beta=1, omega=4, filepath=filepath)
+depths, lithologies = noise.gaussian_noise(x, y, derivatives, bounds, dictionaries, layout, res, gamma=0.6,
                                            filepath=filepath)
 ## Create sequence w. perfect cyclicity:
 depths2 = para_depths
-for i in range(2*len(para_depths)-2):
+for i in range(8*len(para_depths)-2):
     depths2.append(depths2[-1] + (depths2[i+1]-depths2[i]))
-lithologies2 = para_lithologies + para_lithologies + para_lithologies
+lithologies2 = []
+for i in range(10):
+    lithologies2 += para_lithologies
+    
 ## Run Burgess model:
-result1, result2 = burg.main(depths, lithologies, layout, res, n, filepath)
+result1, result2, result3 = burg.main(depths, lithologies, layout, res, n, filepath)

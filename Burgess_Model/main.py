@@ -1,5 +1,6 @@
 # Standard imports:
 import sys
+from typing import Tuple, List
 from time import sleep
 import os
 import numpy as np
@@ -11,6 +12,7 @@ from Visualization_Tools import profile_visualizers as vp
 from Visualization_Tools import matrix_visualizers as mv
 import tpmat as tp
 import markovmetric as mo
+import diagsift
 
 
 # result1, result2 = main(depths, lithologies, colors, patterns):
@@ -39,6 +41,9 @@ import markovmetric as mo
 ##      tp_matrix: the TP matrix.
 ##      m: the Markov order corresponding to the TP matrix (according to the equation in Burgess (2016)).
 ##      facies_dict: a dictionary containing the facies coding for the TP matrix.
+## result3: a list containing the highest m-value results with probabilities aligned on the (j=1,j=-(F-1)) or
+##          (j=-1,j=F-1) diagonal pairs (subset of result2). Each entry is of the format [tp_matrix, m, facies_dict]
+##          in similar fashion to result2.
 ## VISUALIZATIONS:
 ##      1. The vertical profile with depth and thicknesses.
 ##      2. A histogram displaying the distribution of m-values.
@@ -47,7 +52,8 @@ import markovmetric as mo
 ##          - The vertical profile in coded format, in similar fashion to Burgess (2016), saved in 'filepath'.
 
 
-def main(depths: list, lithologies: list, layout: dict, res: float, n: int, filepath: str):
+def main(depths: list, lithologies: list, layout: dict, res: float, n: int, filepath: str) -> Tuple[list, list, list]:
+
     # Visualize the vertical profile and obtain the facies classes:
     classes = vp.vertical_profile(depths, lithologies, layout, res, n, filepath=filepath + '\Vertical Profile.png')
     F = len(classes)
@@ -97,13 +103,17 @@ def main(depths: list, lithologies: list, layout: dict, res: float, n: int, file
     result1 = [tp_mat_storage, markov_storage, dict_storage]
     ## Prepare output result2:
     m_max = np.max(markov_storage)
-    indices = []
+    result2 = []
     for i in range(math.factorial(F)):
         if markov_storage[i] == m_max:
+            result2.append([tp_mat_storage[i], markov_storage[i], dict_storage[i]])
+    ## Prepare output result3:
+    indices = []
+    result3 = []
+    for i in range(len(result2)):
+        if diagsift.diagonal_sifter(result2[i][0], F):
             indices.append(i)
-    result2 = []
-    for index in indices:
-        result2.append([tp_mat_storage[index], markov_storage[index], dict_storage[index]])
+            result3.append([result2[i][0], result2[i][1], result2[i][2]])
 
     # Visualize for each entry in result2 the TP matrix and the coded profile:
     os.makedirs(filepath + '\Coded Profiles', exist_ok=True)
@@ -126,4 +136,11 @@ def main(depths: list, lithologies: list, layout: dict, res: float, n: int, file
         sys.stdout.flush()
         sleep(0.25)
 
-    return result1, result2
+    # Highlight the ideal matrices from result3 with a different colormap:
+    for i in range(len(result3)):
+        ## Recreate the TP matrix visualization, but now with an opposing colormap:
+        mv.matrix_imager(result3[i][0], classes, result3[i][2], layout, ideal=True,
+                         filepath=filepath + '\TP Matrices\TP Matrix No.' + str(indices[i] + 1) + '.png',
+                         title='Markov Order Metric m = ' + str(round(result3[i][1], 2)), cmap='Oranges')
+
+    return result1, result2, result3
