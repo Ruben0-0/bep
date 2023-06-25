@@ -51,6 +51,24 @@ def dict_normalizer(dictio, indices):
     return dictio
 
 
+# reverse_dictionary = reverse_dict(dictionary):
+# ======================================================================================================================
+# INPUT:
+# ======================================================================================================================
+## dictionary: some dictionary with key:value pairs.
+# ======================================================================================================================
+# OUTPUT:
+# ======================================================================================================================
+## reverse_dictionary: a new dictionary with as key:value pairs 'str(value):key' from the input dictionary.
+
+
+def reverse_dict(dictionary: dict) -> dict:
+    reverse_dictionary = {}
+    for key in dictionary:
+        reverse_dictionary[str(dictionary[key])] = key
+    return reverse_dictionary
+
+
 # array = consistent_range(start, stop, step):
 # ======================================================================================================================
 # INPUT:

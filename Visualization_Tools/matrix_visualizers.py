@@ -2,7 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import patches
 from matplotlib import lines
-
+# Custom imports:
+from Synthetic_Sequencer import synthtools as syn
 
 # matrix_imager(tp_matrix, classes, facies_dict, layout, filepath, title=None):
 # ======================================================================================================================
@@ -37,8 +38,9 @@ def matrix_imager(tp_matrix, classes, facies_dict: dict, layout: dict, filepath:
     axes[0].grid(which='minor', color='black', lw=2)
     ## Create lithology labels:
     x_labels = []
+    rev_facies_dict = syn.reverse_dict(facies_dict)
     for i in range(F):
-        x_labels.append(classes[facies_dict[classes[i]]])
+        x_labels.append(rev_facies_dict[str(i)])
     axes[0].set_xticklabels(x_labels, weight='bold')
     x_labels.reverse()
     axes[0].set_yticklabels(x_labels, weight='bold')
