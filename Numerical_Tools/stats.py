@@ -70,12 +70,18 @@ def skewed_norm_rvs(a, mu, sigma):
 ## mu_right: the right percentile (depending on psi) of the skewed normal distribution with parameters a, mu_corrected
 ##           and sigma.
 
+
 def pdf_splitter(x, a, mu_corrected, sigma, psi):
     # Retrieve the left and right percentile to be used from psi:
     p_left, p_right = psi_function(psi)
-    # Calculate 25th and 75th percentiles of original PDF:
+    # Calculate left and right percentile values of original PDF:
     mu_left = stats.skewnorm.ppf(p_left, a, loc=mu_corrected, scale=sigma)
     mu_right = stats.skewnorm.ppf(p_right, a, loc=mu_corrected, scale=sigma)
+    # Apply the median-to-mean correction (so that psi=0 aligns with the original distribution):
+    mean = stats.skewnorm.mean(a, loc=mu_corrected, scale=sigma)
+    median = stats.skewnorm.median(a, loc=mu_corrected, scale=sigma)
+    mu_left += mean - median
+    mu_right += mean - median
     # Create new distributions with P25 and P75 as means:
     y1, p_25_corrected = skewed_norm_pdf(x, a, mu=mu_left, sigma=sigma)
     y2, p_75_corrected = skewed_norm_pdf(x, a, mu=mu_right, sigma=sigma)

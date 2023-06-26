@@ -2,7 +2,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import patches
 from matplotlib.patches import Patch
-from scipy import stats
 # Custom imports:
 import synthtools as syn
 from Numerical_Tools import stats as st
@@ -59,20 +58,20 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     plt.vlines(mu_right, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=1.8)
     ### Mean and percentile labels:
     offset = 0.01*(max(x1) - min(x1))
-    plt.text(mu_left, 0.995*max(y1), 'P' + str(int(round(100*p_left, 0))), rotation='horizontal',
+    plt.text(mu_left, 0.995*max(y1), 'P' + str(int(round(100*p_left, 0))) + '*', rotation='horizontal',
              weight='semibold', ha='center')
-    plt.text(mu_left - 3*offset, 0.15*max(y1), r'$\mu$ = ' + str(round(mu_left, 1)) + 'm', rotation='vertical',
+    plt.text(mu_left - 3*offset, 0.15*max(y1), r'$\mu_1$ = ' + str(round(mu_left, 1)) + 'm', rotation='vertical',
              weight='medium', va='center')
-    plt.text(mu_right, 0.995*max(y1), 'P' + str(int(round(100*p_right, 0))), rotation='horizontal',
+    plt.text(mu_right, 0.995*max(y1), 'P' + str(int(round(100*p_right, 0))) + '*', rotation='horizontal',
              weight='semibold', ha='center')
-    plt.text(mu_right - 3*offset, 0.15*max(y1), r'$\mu$ = ' + str(round(mu_right, 1)) + 'm', rotation='vertical',
+    plt.text(mu_right - 3*offset, 0.15*max(y1), r'$\mu_2$ = ' + str(round(mu_right, 1)) + 'm', rotation='vertical',
              weight='medium', va='center')
     ### Limits, labels, title:
     plt.xlim(0, max(x1))
     plt.ylim(0, max(y1) + 0.1 * max(y1))
     plt.xlabel('Parasequence Thickness [m]')
-    plt.title('Parasequence Thickness Distribution' + '\n' + r'$\mu$ = ' + str(depths[-1]) + 'm, ' + r'$\sigma$ = ' +
-              str(alpha) + '\n' + r'$\psi = $' + str(psi) + ', ' + r'$\omega$ = ' + str(omega), weight='bold')
+    plt.title('Parasequence Thickness Distribution' + '\n' + r'$\mu_0$ = ' + str(depths[-1]) + 'm, ' + r'$\sigma$ = ' +
+              str(alpha) + 'm' + '\n' + r'$\psi = $' + str(psi) + ', ' + r'$\omega$ = ' + str(omega), weight='bold')
     ### Save or show figure:
     if filepath is None:
         plt.show()
@@ -106,7 +105,7 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
             y_max = max(y2)
     plt.xlim(min(x2), max(x2))
     plt.ylim(0, y_max + 0.3 * y_max)
-    plt.title('Layer Thickness Distributions, ' + r'$\sigma$ = ' + r'$\beta$ = ' + str(beta), weight='bold')
+    plt.title('Layer Thickness Distributions, ' + r'$\sigma$ = ' + r'$\beta$ = ' + str(beta) + 'm', weight='bold')
     plt.xlabel('Layer Thickness [m]')
     if filepath is None:
         plt.show()
@@ -128,7 +127,7 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     dicts = []
     for i in range(n):
         ### Grab a total thickness from the Gaussian distribution:
-        #### Compensational stacking: alternate between the p25 and p75 distributions:
+        #### Compensational stacking: alternate between the left and right distributions:
         if (i % 2) == 0:
             d_tot = st.skewed_norm_rvs(omega, mu_left, alpha)
         else:
