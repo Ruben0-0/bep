@@ -17,7 +17,7 @@ res = 0.1
 n = 8
 ## Create synthetic sequence:
 x, y, derivatives, bounds, dictionaries = seq.sequencer(para_depths, para_lithologies, layout, res, n,
-                                                        alpha=5, beta=1, omega=4, filepath=filepath)
+                                                        alpha=5, beta=1, psi=0.8, omega=4, filepath=filepath)
 depths, lithologies = noise.gaussian_noise(x, y, derivatives, bounds, dictionaries, layout, res, gamma=0.6,
                                            filepath=filepath)
 ## Create sequence w. perfect cyclicity:

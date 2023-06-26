@@ -2,13 +2,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import patches
 from matplotlib.patches import Patch
+from scipy import stats
 # Custom imports:
 import synthtools as syn
 from Numerical_Tools import stats as st
 
 
-# x, y, derivatives, para_boundaries, dicts = sequencer(depths, lithologies, layout, res, n, alpha=0, beta=0, omega=0,
-#                                                       filepath=None):
+# x, y, derivatives, para_boundaries, dicts = sequencer(depths, lithologies, layout, res, n, alpha=0, beta=0, psi=0,
+#                                                       omega=0, filepath=None):
 # ======================================================================================================================
 # INPUT:
 # ======================================================================================================================
@@ -17,9 +18,11 @@ from Numerical_Tools import stats as st
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
 ## res: the desired resolution; significant for the addition of noise in later steps. [m]
 ## n: total number of (para)sequences in the profile.
-## alpha [optional]: measure of total parasequence thickness variation. Alpha is the standard deviation for a Gaussian
+## alpha [optional]: measure of total parasequence thickness variance. Alpha is the standard deviation for a Gaussian
 ##                   distribution with as mean the given parasequence thickness in 'depths'. Default = 0.
 ## beta [optional]: measure of individual layer thickness variance. Default = 0.
+## psi [optional]: value between 0 - 1; measure of compensational stacking. If psi = 0, no compensational stacking
+##                 effect.  If psi = 1, maximum compensational stacking effect. Default = 0.
 ## omega [optional]: measure of skewness for all distributions. Omega > 0 ==> positive skewness and vice versa.
 ##                   If omega = 0, distributions are standard normal.
 ## filepath [optional]: string containing the directory and filename to which the figures are saved.
@@ -34,7 +37,7 @@ from Numerical_Tools import stats as st
 
 
 def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int, alpha: float = 0, beta: float = 0,
-              omega: float = 0, filepath: str = None):
+              psi: float = 0, omega: float = 0, filepath: str = None):
     # Calibrate 'depths' to start at 0:
     if depths[0] != 0:
         depths -= depths[0]
@@ -42,21 +45,35 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     # Plot the normal distributions used for wavelength and layer thickness distribution:
     ## Wavelength (total thickness) distribution:
     x1 = np.linspace(depths[-1] - 3 * alpha, depths[-1] + 3 * alpha + omega/20 * depths[-1], 200)
+    x1 = np.linspace(0, max(x1) + 0.2*psi*(max(x1)-min(x1)), 200)
     y1, mu_corrected = st.skewed_norm_pdf(x1, omega, depths[-1], alpha)
-    ## Retrieve 25th and 75th percentiles and use these as means for two separate distributions:
-    y2, y3, p_25, p_75 = st.pdf_splitter(x1, omega, mu_corrected, alpha)
+    ## Retrieve left and right percentiles and use these as means for two separate distributions:
+    y2, y3, p_left, p_right, mu_left, mu_right = st.pdf_splitter(x1, omega, mu_corrected, alpha, psi)
     ## Plot the distributions in one graph:
-    plt.plot(x1, y1, label=r'$\mu$ = ' + str(depths[-1]) + ', ' + r'$\sigma$ = ' + str(alpha), lw=2, color='maroon')
-    plt.plot(x1, y2, label=r'$\mu$ = ' + str(round(p_25, 1)) + ', ' + r'$\sigma$ = ' + str(alpha), lw=1.8, color='pink')
-    plt.plot(x1, y3, label=r'$\mu$ = ' + str(round(p_75, 1)) + ', ' + r'$\sigma$ = ' + str(alpha), lw=1.8, color='pink')
-    plt.vlines(depths[-1], 0, max(y1) + 0.1 * max(y1), linestyle='--', color='maroon', lw=1)
-    plt.vlines(p_25, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=0.8)
-    plt.vlines(p_75, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=0.8)
-    plt.xlim(min(x1), max(x1))
+    plt.plot(x1, y1, lw=2, color='maroon')
+    plt.plot(x1, y2, lw=1.8, color='pink')
+    plt.plot(x1, y3, lw=1.8, color='pink')
+    ### Mean lines:
+    plt.vlines(depths[-1], 0, max(y1) + 0.1 * max(y1), linestyle='--', color='maroon', lw=2)
+    plt.vlines(mu_left, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=1.8)
+    plt.vlines(mu_right, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=1.8)
+    ### Mean and percentile labels:
+    offset = 0.01*(max(x1) - min(x1))
+    plt.text(mu_left, 0.995*max(y1), 'P' + str(int(round(100*p_left, 0))), rotation='horizontal',
+             weight='semibold', ha='center')
+    plt.text(mu_left - 3*offset, 0.15*max(y1), r'$\mu$ = ' + str(round(mu_left, 1)) + 'm', rotation='vertical',
+             weight='medium', va='center')
+    plt.text(mu_right, 0.995*max(y1), 'P' + str(int(round(100*p_right, 0))), rotation='horizontal',
+             weight='semibold', ha='center')
+    plt.text(mu_right - 3*offset, 0.15*max(y1), r'$\mu$ = ' + str(round(mu_right, 1)) + 'm', rotation='vertical',
+             weight='medium', va='center')
+    ### Limits, labels, title:
+    plt.xlim(0, max(x1))
     plt.ylim(0, max(y1) + 0.1 * max(y1))
     plt.xlabel('Parasequence Thickness [m]')
-    plt.title('Parasequence Thickness Distribution', weight='bold')
-    plt.legend()
+    plt.title('Parasequence Thickness Distribution' + '\n' + r'$\mu$ = ' + str(depths[-1]) + 'm, ' + r'$\sigma$ = ' +
+              str(alpha) + '\n' + r'$\psi = $' + str(psi) + ', ' + r'$\omega$ = ' + str(omega), weight='bold')
+    ### Save or show figure:
     if filepath is None:
         plt.show()
     else:
@@ -113,9 +130,9 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
         ### Grab a total thickness from the Gaussian distribution:
         #### Compensational stacking: alternate between the p25 and p75 distributions:
         if (i % 2) == 0:
-            d_tot = st.skewed_norm_rvs(omega, p_25, alpha)
+            d_tot = st.skewed_norm_rvs(omega, mu_left, alpha)
         else:
-            d_tot = st.skewed_norm_rvs(omega, p_75, alpha)
+            d_tot = st.skewed_norm_rvs(omega, mu_right, alpha)
 
         ### Determine the layer boundaries within the ith parasequence:
         layers = [0]

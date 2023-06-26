@@ -57,25 +57,50 @@ def skewed_norm_rvs(a, mu, sigma):
 ## a: a measure of skewness. If a>0, pdf is positively skewed. If a<0, pdf is negatively skewed.
 ## mu_corrected: the mean of the skewed distribution displaced such that it aligns with Scipy's PDF 'loc' parameter.
 ## sigma: the standard deviation of the skewed distribution.
+## psi:
 # ======================================================================================================================
 # OUTPUT:
-# =========================================================================================y=============================
+# =========================================================================================y============================
 ## y1: array, same length as 'x', containing the skewed normal distribution PDF with a mean corresponding to P25
 ##     of the skewed normal distribution with parameters a, mu_corrected, and sigma.
 ## y2: array, same length as 'x', containing the skewed normal distribution PDF with a mean corresponding to P75
 ##     of the skewed normal distribution with parameters a, mu_corrected, and sigma.
-## p_25: the 25th percentile of the skewed normal distribution with parameters a, mu_corrected and sigma.
-## p_75: the 75th percentile of the skewed normal distribution with parameters a, mu_corrected and sigma.
+## mu_left: the left percentile (depending on psi) of the skewed normal distribution with parameters a, mu_corrected
+##          and sigma.
+## mu_right: the right percentile (depending on psi) of the skewed normal distribution with parameters a, mu_corrected
+##           and sigma.
 
-
-def pdf_splitter(x, a, mu_corrected, sigma):
+def pdf_splitter(x, a, mu_corrected, sigma, psi):
+    # Retrieve the left and right percentile to be used from psi:
+    p_left, p_right = psi_function(psi)
     # Calculate 25th and 75th percentiles of original PDF:
-    p_25 = stats.skewnorm.ppf(0.25, a, loc=mu_corrected, scale=sigma)
-    p_75 = stats.skewnorm.ppf(0.75, a, loc=mu_corrected, scale=sigma)
+    mu_left = stats.skewnorm.ppf(p_left, a, loc=mu_corrected, scale=sigma)
+    mu_right = stats.skewnorm.ppf(p_right, a, loc=mu_corrected, scale=sigma)
     # Create new distributions with P25 and P75 as means:
-    y1, p_25_corrected = skewed_norm_pdf(x, a, mu=p_25, sigma=sigma)
-    y2, p_75_corrected = skewed_norm_pdf(x, a, mu=p_75, sigma=sigma)
+    y1, p_25_corrected = skewed_norm_pdf(x, a, mu=mu_left, sigma=sigma)
+    y2, p_75_corrected = skewed_norm_pdf(x, a, mu=mu_right, sigma=sigma)
     # Normalize the distributions:
     y1 /= 2
     y2 /= 2
-    return y1, y2, p_25, p_75
+    return y1, y2, p_left, p_right, mu_left, mu_right
+
+
+# P_left, P_right = psi_function(psi):
+# ======================================================================================================================
+# INPUT:
+# ======================================================================================================================
+## psi: value between 0 - 1; if psi = 1, max spread between left and right percentiles; if psi = 0, both left and right
+##      percentiles are P50.
+# ======================================================================================================================
+# OUTPUT:
+# ======================================================================================================================
+## P_left: the left percentile.
+## P_right: the right percentile.
+
+
+def psi_function(psi):
+    if psi >= (1 - 1e-3):
+        psi = 1 - 1e-3
+    P_left = 0.5 - 0.5*psi
+    P_right = 0.5 + 0.5*psi
+    return P_left, P_right
