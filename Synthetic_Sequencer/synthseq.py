@@ -43,75 +43,78 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
 
     # Plot the normal distributions used for wavelength and layer thickness distribution:
     ## Wavelength (total thickness) distribution:
-    x1 = np.linspace(depths[-1] - 3 * alpha, depths[-1] + 3 * alpha + omega/20 * depths[-1], 200)
-    x1 = np.linspace(0, max(x1) + 0.2*psi*(max(x1)-min(x1)), 200)
-    y1, mu_corrected = st.skewed_norm_pdf(x1, omega, depths[-1], alpha)
-    ## Retrieve left and right percentiles and use these as means for two separate distributions:
-    y2, y3, p_left, p_right, mu_left, mu_right = st.pdf_splitter(x1, omega, mu_corrected, alpha, psi)
-    ## Plot the distributions in one graph:
-    plt.plot(x1, y1, lw=2, color='maroon')
-    plt.plot(x1, y2, lw=1.8, color='pink')
-    plt.plot(x1, y3, lw=1.8, color='pink')
-    ### Mean lines:
-    plt.vlines(depths[-1], 0, max(y1) + 0.1 * max(y1), linestyle='--', color='maroon', lw=2)
-    plt.vlines(mu_left, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=1.8)
-    plt.vlines(mu_right, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=1.8)
-    ### Mean and percentile labels:
-    offset = 0.01*(max(x1) - min(x1))
-    plt.text(mu_left, 0.995*max(y1), 'P' + str(int(round(100*p_left, 0))) + '*', rotation='horizontal',
-             weight='semibold', ha='center')
-    plt.text(mu_left - 3*offset, 0.15*max(y1), r'$\mu_1$ = ' + str(round(mu_left, 1)) + 'm', rotation='vertical',
-             weight='medium', va='center')
-    plt.text(mu_right, 0.995*max(y1), 'P' + str(int(round(100*p_right, 0))) + '*', rotation='horizontal',
-             weight='semibold', ha='center')
-    plt.text(mu_right - 3*offset, 0.15*max(y1), r'$\mu_2$ = ' + str(round(mu_right, 1)) + 'm', rotation='vertical',
-             weight='medium', va='center')
-    ### Limits, labels, title:
-    plt.xlim(0, max(x1))
-    plt.ylim(0, max(y1) + 0.1 * max(y1))
-    plt.xlabel('Parasequence Thickness [m]')
-    plt.title('Parasequence Thickness Distribution' + '\n' + r'$\mu_0$ = ' + str(depths[-1]) + 'm, ' + r'$\sigma$ = ' +
-              str(alpha) + 'm' + '\n' + r'$\psi = $' + str(psi) + ', ' + r'$\omega$ = ' + str(omega), weight='bold')
-    ### Save or show figure:
-    if filepath is None:
-        plt.show()
-    else:
-        plt.savefig(filepath + '\Parasequence Thickness Distribution.png', bbox_inches='tight')
-    plt.close()
+    mu_left, mu_right = depths[-1], depths[-1]
+    if alpha != 0:
+        x1 = np.linspace(depths[-1] - 3 * alpha, depths[-1] + 3 * alpha + omega/20 * depths[-1], 200)
+        x1 = np.linspace(0, max(x1) + 0.2*psi*(max(x1)-min(x1)), 200)
+        y1, mu_corrected = st.skewed_norm_pdf(x1, omega, depths[-1], alpha)
+        ### Retrieve left and right percentiles and use these as means for two separate distributions:
+        y2, y3, p_left, p_right, mu_left, mu_right = st.pdf_splitter(x1, omega, mu_corrected, alpha, psi)
+        ### Plot the distributions in one graph:
+        plt.plot(x1, y1, lw=2, color='maroon')
+        plt.plot(x1, y2, lw=1.8, color='pink')
+        plt.plot(x1, y3, lw=1.8, color='pink')
+        ### Mean lines:
+        plt.vlines(depths[-1], 0, max(y1) + 0.1 * max(y1), linestyle='--', color='maroon', lw=2)
+        plt.vlines(mu_left, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=1.8)
+        plt.vlines(mu_right, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=1.8)
+        ### Mean and percentile labels:
+        offset = 0.01*(max(x1) - min(x1))
+        plt.text(mu_left, 0.995*max(y1), 'P' + str(int(round(100*p_left, 0))) + '*', rotation='horizontal',
+                 weight='semibold', ha='center')
+        plt.text(mu_left - 3*offset, 0.15*max(y1), r'$\mu_1$ = ' + str(round(mu_left, 1)) + 'm', rotation='vertical',
+                 weight='medium', va='center')
+        plt.text(mu_right, 0.995*max(y1), 'P' + str(int(round(100*p_right, 0))) + '*', rotation='horizontal',
+                 weight='semibold', ha='center')
+        plt.text(mu_right - 3*offset, 0.15*max(y1), r'$\mu_2$ = ' + str(round(mu_right, 1)) + 'm', rotation='vertical',
+                 weight='medium', va='center')
+        ### Limits, labels, title:
+        plt.xlim(0, max(x1))
+        plt.ylim(0, max(y1) + 0.1 * max(y1))
+        plt.xlabel('Parasequence Thickness [m]')
+        plt.title('Parasequence Thickness Distribution' + '\n' + r'$\mu_0$ = ' + str(depths[-1]) + 'm, ' + r'$\sigma$ = ' +
+                  str(alpha) + 'm' + '\n' + r'$\psi = $' + str(psi) + ', ' + r'$\omega$ = ' + str(omega), weight='bold')
+        ### Save or show figure:
+        if filepath is None:
+            plt.show()
+        else:
+            plt.savefig(filepath + '\Parasequence Thickness Distribution.png', bbox_inches='tight')
+        plt.close()
 
     ## For each layer, plot the layer thickness distribution:
-    max_thickness = 0
-    min_thickness = 1e5
-    ### Find a fitting x-range:
-    for i in range(1, len(depths)):
-        if (depths[i] - depths[i - 1]) >= max_thickness:
-            max_thickness = depths[i] - depths[i - 1]
-        if (depths[i] - depths[i - 1]) <= min_thickness:
-            min_thickness = depths[i] - depths[i - 1]
-    x2 = np.linspace(min_thickness - 3 * beta, max_thickness + 3 * beta, 200)
-    y_max = 0
-    for i in range(len(lithologies)):
-        ### Plot the distribution for each lithology:
-        y2, mu = st.skewed_norm_pdf(x2, omega, depths[i + 1] - depths[i], beta)
-        plt.plot(x2, y2, label='mean = ' + str(round(depths[i + 1] - depths[i], 2)) + ', sigma= ' + str(beta),
-                 color=layout[lithologies[i]][0], lw=2)
-        plt.axvline(x=depths[i + 1] - depths[i], linestyle='--', lw=1, color=layout[lithologies[i]][0])
-        ### Add lithology and mean labels:
-        plt.text(depths[i + 1] - depths[i], max(y2) + 0.05 * max(y2), lithologies[i], ha='center')
-        plt.text(depths[i + 1] - depths[i] - 0.015 * max_thickness, max(y2) + 0.2 * max(y2),
-                 str(round(depths[i + 1] - depths[i], 2)) + 'm',
-                 rotation='vertical', ha='center', va='center')
-        if max(y2) >= y_max:
-            y_max = max(y2)
-    plt.xlim(min(x2), max(x2))
-    plt.ylim(0, y_max + 0.3 * y_max)
-    plt.title('Layer Thickness Distributions, ' + r'$\sigma$ = ' + r'$\beta$ = ' + str(beta) + 'm', weight='bold')
-    plt.xlabel('Layer Thickness [m]')
-    if filepath is None:
-        plt.show()
-    else:
-        plt.savefig(filepath + '\Layer Thickness Distributions.png', bbox_inches='tight')
-    plt.close()
+    if beta != 0:
+        max_thickness = 0
+        min_thickness = 1e5
+        ### Find a fitting x-range:
+        for i in range(1, len(depths)):
+            if (depths[i] - depths[i - 1]) >= max_thickness:
+                max_thickness = depths[i] - depths[i - 1]
+            if (depths[i] - depths[i - 1]) <= min_thickness:
+                min_thickness = depths[i] - depths[i - 1]
+        x2 = np.linspace(min_thickness - 3 * beta, max_thickness + 3 * beta, 200)
+        y_max = 0
+        for i in range(len(lithologies)):
+            ### Plot the distribution for each lithology:
+            y2, mu = st.skewed_norm_pdf(x2, omega, depths[i + 1] - depths[i], beta)
+            plt.plot(x2, y2, label='mean = ' + str(round(depths[i + 1] - depths[i], 2)) + ', sigma= ' + str(beta),
+                     color=layout[lithologies[i]][0], lw=2)
+            plt.axvline(x=depths[i + 1] - depths[i], linestyle='--', lw=1, color=layout[lithologies[i]][0])
+            ### Add lithology and mean labels:
+            plt.text(depths[i + 1] - depths[i], max(y2) + 0.05 * max(y2), lithologies[i], ha='center')
+            plt.text(depths[i + 1] - depths[i] - 0.015 * max_thickness, max(y2) + 0.2 * max(y2),
+                     str(round(depths[i + 1] - depths[i], 2)) + 'm',
+                     rotation='vertical', ha='center', va='center')
+            if max(y2) >= y_max:
+                y_max = max(y2)
+        plt.xlim(min(x2), max(x2))
+        plt.ylim(0, y_max + 0.3 * y_max)
+        plt.title('Layer Thickness Distributions, ' + r'$\sigma$ = ' + r'$\beta$ = ' + str(beta) + 'm', weight='bold')
+        plt.xlabel('Layer Thickness [m]')
+        if filepath is None:
+            plt.show()
+        else:
+            plt.savefig(filepath + '\Layer Thickness Distributions.png', bbox_inches='tight')
+        plt.close()
 
     # Create the sinusoid profile:
     ## These will store the full profile but in parasequence-, layer- segments:
@@ -126,19 +129,23 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     ## Store for each parasequence a dictionary containing its characteristic sieve parameters for each layer:
     dicts = []
     for i in range(n):
-        ### Grab a total thickness from the Gaussian distribution:
-        #### Compensational stacking: alternate between the left and right distributions:
-        if (i % 2) == 0:
-            d_tot = st.skewed_norm_rvs(omega, mu_left, alpha)
-        else:
-            d_tot = st.skewed_norm_rvs(omega, mu_right, alpha)
+        d_tot = depths[-1]
+        ### Grab a total thickness from the Gaussian distribution if alpha is nonzero:
+        if alpha != 0:
+            #### Compensational stacking: alternate between the left and right distributions:
+            if (i % 2) == 0:
+                d_tot = st.skewed_norm_rvs(omega, mu_left, alpha)
+            else:
+                d_tot = st.skewed_norm_rvs(omega, mu_right, alpha)
 
         ### Determine the layer boundaries within the ith parasequence:
         layers = [0]
         para_thickness = 0
         for j in range(len(lithologies)):
-            #### Grab layer thicknesses from their respective Gaussian distributions:
-            layer_thickness = st.skewed_norm_rvs(omega, depths[j + 1] - depths[j], beta)
+            layer_thickness = depths[j+1] - depths[j]
+            if beta != 0:
+                #### Grab layer thicknesses from their respective Gaussian distributions if beta is nonzero:
+                layer_thickness = st.skewed_norm_rvs(omega, depths[j + 1] - depths[j], beta)
             para_thickness += layer_thickness
             layers.append(para_thickness)
         #### Normalize to the parasequence thickness:
