@@ -115,8 +115,24 @@ def coded_profile(depths: list, lithologies: list, classes: list, facies_dict: d
     return
 
 
-def parasequence_profiler(para_depths: list, para_lithologies: list, layout: dict, res: float,
-                          dimensions: tuple = (1, 6), filepath: str = None) -> None:
+# parasequence_profile(para_depths, para_lithologies, layout, res, dimensions=(1, 6), filepath=None):
+# ======================================================================================================================
+# INPUT:
+# ======================================================================================================================
+## para_depths: a list containing the depths at which lithology boundaries occur in the parasequence. Length F+1.
+## para_lithologies: a list containing the lithological units, in order, of the parasequence. Length F.
+## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
+## res [optional]: determines the step-size on the vertical axis of the figure. Default = 1.0m.
+## dimensions [optional]: tuple containing (width, height) of the figure. Default = (1, 6).
+## filepath [optional]: string containing the directory and filename to which the figure is saved.
+# ======================================================================================================================
+# OUTPUT:
+# ======================================================================================================================
+## Visualizes the parasequence including lithology labels, thickness labels, and a depth axis.
+
+
+def parasequence_profile(para_depths: list, para_lithologies: list, layout: dict, res: float = 1.0,
+                         dimensions: tuple = (1, 6), filepath: str = None) -> None:
     # Create figure and axes:
     fig, ax = plt.subplots()
     w, h = dimensions
