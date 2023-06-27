@@ -13,7 +13,7 @@ from matplotlib.patches import Patch
 ##              boundaries defined in depths.
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
 ## res: the desired resolution; determines the y-tick step-size. [m]
-## n: the number of (para)sequences.
+## dimensions [optional]: tuple containing (width, height) of the figure.
 ## filepath [optional]: string containing the directory and filename to which the figure is saved.
 # ======================================================================================================================
 # OUTPUT:
@@ -22,10 +22,13 @@ from matplotlib.patches import Patch
 ## classes: a list of all unique facies classes, size F.
 
 
-def vertical_profile(depths: list, lithologies: list, layout: dict, res: float, n: int, filepath: str = None):
+def vertical_profile(depths: list, lithologies: list, layout: dict, res: float, dimensions: tuple = (1, 5),
+                     filepath: str = None) -> list:
     # Create figure and axes:
     fig, ax = plt.subplots()
-    fig.set_size_inches(0.1*(4*n), 4*n)
+    w, h = dimensions
+    fig.set_size_inches(w, h)
+
     # Add a rectangle patch for each lithological unit:
     classes = []
     for i in range(len(lithologies)):
@@ -109,4 +112,46 @@ def coded_profile(depths: list, lithologies: list, classes: list, facies_dict: d
     else:
         plt.savefig(filepath, dpi=fig.dpi, bbox_inches='tight')
     plt.close(fig)
+    return
+
+
+def parasequence_profiler(para_depths: list, para_lithologies: list, layout: dict, res: float,
+                          dimensions: tuple = (1, 6), filepath: str = None) -> None:
+    # Create figure and axes:
+    fig, ax = plt.subplots()
+    w, h = dimensions
+    fig.set_size_inches(w, h)
+
+    # Create indents:
+    indents = np.linspace(0.5, 0.25, len(para_lithologies))
+
+    # Add a rectangle patch for each lithological unit and a thickness and lithology label:
+    for i in range(len(para_lithologies)):
+        ## Add lithology patch:
+        ax.add_patch(patches.Rectangle((0, para_depths[i]), indents[i], para_depths[i + 1] - para_depths[i],
+                                       edgecolor='black', hatch=layout[para_lithologies[i]][1],
+                                       facecolor=layout[para_lithologies[i]][0]))
+        ## Add thickness label:
+        ax.text(0.6, para_depths[i] + (para_depths[i+1]-para_depths[i])/2,
+                str(round(para_depths[i+1]-para_depths[i], 1)) + 'm')
+
+        ## Add lithology line:
+        plt.vlines(indents[i], ymin=para_depths[i+1], ymax=para_depths[-1], lw=1)
+
+    # Ticks, limits, labels, title:
+    ax.set_xticks(np.linspace(0.5, 0.25, len(para_lithologies)))
+    ax.set_xticklabels(para_lithologies, weight='semibold', fontsize='xx-small', rotation=90)
+    ax.set_yticks(np.arange(0, para_depths[-1] + res, res))
+    ax.set_xlim(0, 0.5)
+    ax.set_ylim(max(para_depths), min(para_depths))
+    ax.set_ylabel('Depths [m]')
+    ax.set_title('Parasequence:', weight='semibold')
+
+    # Save or show figure:
+    if filepath is None:
+        plt.show()
+    else:
+        plt.savefig(filepath, dpi=fig.dpi, bbox_inches='tight')
+    plt.close(fig)
+
     return

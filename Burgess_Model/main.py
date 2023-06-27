@@ -42,20 +42,24 @@ import diagsift
 ##      m: the Markov order corresponding to the TP matrix (according to the equation in Burgess (2016)).
 ##      facies_dict: a dictionary containing the facies coding for the TP matrix.
 ## result3: a list containing the highest m-value results with probabilities aligned on the (j=1,j=-(F-1)) or
-##          (j=-1,j=F-1) diagonal pairs (subset of result2). Each entry is of the format [tp_matrix, m, facies_dict]
-##          in similar fashion to result2.
+##          (j=-1,j=F-1) diagonal pairs (subset of result2). Each entry is of the format
+##          [tp_matrix, m, facies_dict, ideal_sequence] in similar fashion to 'result2' except for:
+##      ideal_sequence: a list of length F containing, top-down, the ideal order of facies classes corresponding to
+##                      'tp_matrix'.
 ## VISUALIZATIONS:
 ##      1. The vertical profile with depth and thicknesses.
 ##      2. A histogram displaying the distribution of m-values.
 ##      3. For the highest m-values in the distribution:
 ##          - The TP matrices along with lithologies and probability values, saved in 'filepath'.
 ##          - The vertical profile in coded format, in similar fashion to Burgess (2016), saved in 'filepath'.
+##      4. Those matrices with their TP's aligned on the j=1 or j=-1 diagonal pairs receive an ideal sequence
+##          lithology bar and a different colormap.
 
 
 def main(depths: list, lithologies: list, layout: dict, res: float, n: int, filepath: str) -> Tuple[list, list, list]:
-
     # Visualize the vertical profile and obtain the facies classes:
-    classes = vp.vertical_profile(depths, lithologies, layout, res, n, filepath=filepath + '\Vertical Profile.png')
+    classes = vp.vertical_profile(depths, lithologies, layout, res, dimensions=(0.1*(4*n), 4*n),
+                                  filepath=filepath + '\Vertical Profile.png')
     F = len(classes)
 
     # For every possible facies numbering, calculate a TP matrix and corresponding Markov order:
@@ -139,8 +143,11 @@ def main(depths: list, lithologies: list, layout: dict, res: float, n: int, file
     # Highlight the ideal matrices from result3 with a different colormap:
     for i in range(len(result3)):
         ## Recreate the TP matrix visualization, but now with an opposing colormap:
-        mv.matrix_imager(result3[i][0], classes, result3[i][2], layout, ideal=True,
-                         filepath=filepath + '\TP Matrices\TP Matrix No.' + str(indices[i] + 1) + '.png',
-                         title='Markov Order Metric m = ' + str(round(result3[i][1], 2)), cmap='Oranges')
+        ideal_sequence = mv.matrix_imager(result3[i][0], classes, result3[i][2], layout, ideal=True,
+                                          filepath=filepath + '\TP Matrices\TP Matrix No.' + str(indices[i] + 1) +
+                                          '.png', title='Markov Order Metric m = ' + str(round(result3[i][1], 2)),
+                                          cmap='Oranges')
+        ## Add the ideal sequence to result3:
+        result3[i].append(ideal_sequence)
 
     return result1, result2, result3
