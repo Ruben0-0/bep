@@ -1,3 +1,4 @@
+from typing import Union
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import patches
@@ -24,7 +25,7 @@ from Synthetic_Sequencer import synthtools as syn
 
 
 def matrix_imager(tp_matrix: np.ndarray, classes: list, facies_dict: dict, layout: dict, ideal: bool = False,
-                  filepath: str = None, title: str = None, cmap: str = 'Greens') -> None:
+                  filepath: str = None, title: str = None, cmap: str = 'Greens') -> Union[list, None]:
     # The number of facies classes F:
     F = len(classes)
     # Create figure and axes:
@@ -89,18 +90,15 @@ def matrix_imager(tp_matrix: np.ndarray, classes: list, facies_dict: dict, layou
             diag_sum_pos += tp_matrix[(F-1)-i, 1+i]
             #### The j=-1th diagonal:
             diag_sum_neg += tp_matrix[(F-2)-i, i]
-        ### If the (j=-1,j=F) diagonal has the highest sum value, add lithology bar according to row labels:
-        if diag_sum_pos <= diag_sum_neg:
-            for i in range(len(x_labels)):
-                axes[1].add_patch(patches.Rectangle((-0.5, -0.5 + i), 1, 1, edgecolor='black',
-                                                    hatch=layout[x_labels[i]][1], facecolor=layout[x_labels[i]][0]))
-                axes[1].text(1.1, (-0.5 + i) + 0.5, x_labels[i], weight='semibold', ha='center', va='center')
-        ### Otherwise, add lithology bar in reverse order of the row labels:
-        else:
-            for i in range(len(x_labels)):
-                axes[1].add_patch(patches.Rectangle((-0.5, (F-1.5)-i), 1, 1, edgecolor='black',
-                                                    hatch=layout[x_labels[i]][1], facecolor=layout[x_labels[i]][0]))
-                axes[1].text(1.1, ((F-0.5)-i) - 0.5, x_labels[i], weight='semibold', ha='center', va='center')
+        ### If the (j=1,j=-F) diagonal has the highest sum value, reverse the row labels:
+        if diag_sum_pos > diag_sum_neg:
+            x_labels.reverse()
+        ### Add lithology bar in order of the row labels:
+        for i in range(len(x_labels)):
+            axes[1].add_patch(patches.Rectangle((-0.5, -0.5 + i), 1, 1, edgecolor='black',
+                                                hatch=layout[x_labels[i]][1], facecolor=layout[x_labels[i]][0]))
+            axes[1].text(1.1, (-0.5 + i) + 0.5, x_labels[i], weight='semibold', ha='center', va='center')
+        ### Remove ticks from the lithology bar:
         axes[1].set_xticks([])
         axes[1].set_yticks([])
 
@@ -112,4 +110,9 @@ def matrix_imager(tp_matrix: np.ndarray, classes: list, facies_dict: dict, layou
     # Save figure to selected filepath:
     plt.savefig(filepath, bbox_inches='tight')
     plt.close(fig)
+
+    # If ideal = True, then return the ideal sequence order:
+    if ideal:
+        return x_labels
+
     return
