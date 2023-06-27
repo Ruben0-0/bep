@@ -163,7 +163,7 @@ def profile_reader(x_profile, y_profile, derivs, para_boundaries, dicts: list):
             flag, sieves = sieve(y_profile[i], dy_dx[i], dy_dx2[i], dy_dx3[i], para_dict)
             #### Filter out un-flagged grid-points:
             if flag == 'NONE':
-                flag = midpoint_sieve(y_profile[i],sieves[0], para_dict)
+                flag = midpoint_sieve(y_profile[i], sieves[0], para_dict)
                 if flag == 'NONE':
                     flag = bottom_sieve(sieves)
             flagged_profile.append(flag)
@@ -176,7 +176,7 @@ def profile_reader(x_profile, y_profile, derivs, para_boundaries, dicts: list):
             flag, sieves = sieve(y_profile[i], dy_dx[i], dy_dx2[i], dy_dx3[i], para_dict)
             #### Filter out un-flagged grid-points:
             if flag == 'NONE':
-                flag = midpoint_sieve(y_profile[i],sieves[0], para_dict)
+                flag = midpoint_sieve(y_profile[i], sieves[0], para_dict)
                 if flag == 'NONE':
                     flag = bottom_sieve(sieves)
             flagged_profile.append(flag)

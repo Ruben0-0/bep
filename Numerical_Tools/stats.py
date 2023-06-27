@@ -82,7 +82,7 @@ def pdf_splitter(x, a, mu_corrected, sigma, psi):
     median = stats.skewnorm.median(a, loc=mu_corrected, scale=sigma)
     mu_left += mean - median
     mu_right += mean - median
-    # Create new distributions with P25 and P75 as means:
+    # Create new distributions with mu_left and mu_right as means:
     y1, p_25_corrected = skewed_norm_pdf(x, a, mu=mu_left, sigma=sigma)
     y2, p_75_corrected = skewed_norm_pdf(x, a, mu=mu_right, sigma=sigma)
     # Normalize the distributions:
