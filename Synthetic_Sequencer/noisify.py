@@ -30,8 +30,7 @@ import seqreader
 
 def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: list, layout: dict, res: int,
                    gamma: float = 0, filepath: str = None):
-    # Make a copy of the pre-noise profile and unpack the derivatives and normalize them:
-    pre_noise_profile = y_profile
+    # Unpack the derivatives and normalize them:
     dy = derivs[0] / max(abs(min(derivs[0])), abs(max(derivs[0])))
     dy2 = derivs[1] / max(abs(min(derivs[1])), abs(max(derivs[1])))
     dy3 = derivs[2] / max(abs(min(derivs[2])), abs(max(derivs[2])))
@@ -75,8 +74,17 @@ def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: l
         axes[1].hlines(depths[i + 1], -1, 1, lw=0.5, linestyle='-.')
     axes[0].plot(noise_profile, x_profile, lw=2, color='r', label=r'$\gamma$ = ' + str(gamma))
     ## Create lithology bar:
+    ### Create indents:
+    indents = np.linspace(0.5, 0.25, len(layout))
+    indent_dict = {}
+    i = 0
+    classes = []
+    for key in layout:
+        indent_dict[key] = indents[i]
+        classes.append(key)
+        i += 1
     for i in range(len(lithologies)):
-        axes[2].add_patch(patches.Rectangle((0, depths[i]), 0.5,
+        axes[2].add_patch(patches.Rectangle((0, depths[i]), indent_dict[lithologies[i]],
                                             depths[i + 1] - depths[i], edgecolor='black',
                                             hatch=layout[lithologies[i]][1], facecolor=layout[lithologies[i]][0]))
     ## Custom legend for the lithology bar:
@@ -88,7 +96,7 @@ def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: l
     for i in range(len(para_boundaries) - 1):
         axes[1].hlines(para_boundaries[i], -1, 5, lw=2, linestyle='--')
         axes[1].text(1.1, (para_boundaries[i] + para_boundaries[i + 1]) / 2, 'n = ' + str(i + 1))
-        axes[2].hlines(para_boundaries[i], 0, 0.5, lw=4, linestyle='-')
+        axes[2].hlines(para_boundaries[i], 0, 0.5, lw=2, linestyle='-')
     ## Plot center lines:
     axes[0].vlines(0, min(x_profile), max(x_profile), lw=1)
     axes[1].vlines(0, min(x_profile), max(x_profile), lw=1)
@@ -112,10 +120,10 @@ def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: l
     ### Axes 2:
     axes[2].set_xlim(0, 0.5)
     axes[2].set_ylim(max(x_profile), min(x_profile))
-    axes[2].set_xticks([])
+    axes[2].set_xticks(indents)
+    axes[2].set_xticklabels(classes, weight='semibold', fontsize='medium', rotation=90)
     axes[2].set_yticks([])
     axes[2].set_title('Lithology', weight='semibold')
-    axes[2].legend(handles=legend_elements, loc='lower left')
 
     # Show or save the figure depending on input 'filepath':
     if filepath is None:

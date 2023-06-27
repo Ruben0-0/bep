@@ -241,16 +241,18 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
         axes[0].text(1.1, (para_boundaries[i] + para_boundaries[i + 1]) / 2, 'n = ' + str(i + 1))
         axes[1].hlines(para_boundaries[i], 0, 0.2, lw=2, linestyle='-')
     ## Add a lithology bar:
+    ### Create indents:
+    indents = np.linspace(0.5, 0.25, len(lithologies))
+    indent_dict = {}
+    for i in range(len(lithologies)):
+        indent_dict[lithologies[i]] = indents[i]
+    ### Create the lithology bar with indents:
     for i in range(n):
         for j in range(len(lithologies)):
-            axes[1].add_patch(patches.Rectangle((0, layer_boundaries[i][j]), 0.5,
+            #### Add lithology patch:
+            axes[1].add_patch(patches.Rectangle((0, layer_boundaries[i][j]), indent_dict[lithologies[j]],
                                                 layer_boundaries[i][j + 1] - layer_boundaries[i][j], edgecolor='black',
                                                 hatch=layout[lithologies[j]][1], facecolor=layout[lithologies[j]][0]))
-    ## Create custom legend:
-    legend_elements = []
-    for i in range(len(lithologies)):
-        legend_elements.append(Patch(facecolor=layout[lithologies[i]][0], hatch=layout[lithologies[i]][1],
-                                     edgecolor='black', label=lithologies[i]))
     ## Limits, labels, titles:
     ### Axes 0:
     axes[0].set_xlim(-1, 1)
@@ -263,9 +265,9 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     ### Axes 1:
     axes[1].set_xlim(0, 0.2)
     axes[1].set_ylim(max(x_segmented[-1][-1]), min(x_segmented[0][0]))
-    axes[1].set_xticks([])
+    axes[1].set_xticks(indents)
+    axes[1].set_xticklabels(lithologies, weight='semibold', fontsize='medium', rotation=90)
     axes[1].set_yticks([])
-    axes[1].legend(handles=legend_elements, loc='lower left')
     axes[1].set_title('Lithologies:', weight='semibold', fontsize=10)
 
     ### Save or show the figure:
