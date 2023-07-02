@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import patches
 from matplotlib.patches import Patch
+from scipy import stats
 # Custom imports:
 import seqreader
 
@@ -34,6 +35,23 @@ def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: l
     dy = derivs[0] / max(abs(min(derivs[0])), abs(max(derivs[0])))
     dy2 = derivs[1] / max(abs(min(derivs[1])), abs(max(derivs[1])))
     dy3 = derivs[2] / max(abs(min(derivs[2])), abs(max(derivs[2])))
+
+    # Plot the Gaussian distribution from which gamma-noise is drawn:
+    if gamma != 0:
+        x0 = np.linspace(-1, 1, 200)
+        gaussian_pdf = stats.norm.pdf(x0, loc=0, scale=gamma)
+        plt.plot(x0, gaussian_pdf, color='navy', lw=2)
+        plt.vlines(0, 0, max(gaussian_pdf) + 0.1*max(gaussian_pdf), color='navy', linestyle='--', lw=1.8)
+        plt.xlabel('Noise Value [-]')
+        plt.ylabel('Probability Density [-]')
+        plt.xlim(-1, 1)
+        plt.ylim(0, max(gaussian_pdf) + 0.1*max(gaussian_pdf))
+        plt.title('Gamma Noise Distribution, ' + r'$\sigma$ = $\gamma$ = ' + str(gamma), weight='semibold')
+        if filepath is None:
+            plt.show()
+        else:
+            plt.savefig(filepath + '\Gamma Noise Distribution.png', bbox_inches='tight')
+        plt.close()
 
     # Create a noise profile, and add this noise to the input profile using a Gaussian distribution with sigma=gamma:
     noise_profile = np.zeros_like(y_profile)
@@ -94,9 +112,13 @@ def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: l
                                      edgecolor='black', label=key))
     ## Plot the original parasequence boundaries with labels:
     for i in range(len(para_boundaries) - 1):
+        ### Parasequence boundaries:
         axes[1].hlines(para_boundaries[i], -1, 5, lw=2, linestyle='--')
-        axes[1].text(1.1, (para_boundaries[i] + para_boundaries[i + 1]) / 2, 'n = ' + str(i + 1))
         axes[2].hlines(para_boundaries[i], 0, 0.5, lw=2, linestyle='-')
+        ### Parasequence label:
+        para_thickness = para_boundaries[i+1] - para_boundaries[i]
+        axes[1].text(1.1, para_boundaries[i] + (para_thickness / 2), 'n = ' + str(i + 1) +
+                     '\n' + str(round(para_thickness, 1)) + 'm')
     ## Plot center lines:
     axes[0].vlines(0, min(x_profile), max(x_profile), lw=1)
     axes[1].vlines(0, min(x_profile), max(x_profile), lw=1)
@@ -129,7 +151,7 @@ def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: l
     if filepath is None:
         plt.show()
     else:
-        plt.subplots_adjust(wspace=0.4)
+        plt.subplots_adjust(wspace=0.5)
         plt.savefig(filepath + '\ Noisified Profile.png', dpi=fig.dpi, bbox_inches='tight')
     plt.close(fig)
 

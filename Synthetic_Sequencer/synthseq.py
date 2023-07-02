@@ -51,27 +51,30 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
         ### Retrieve left and right percentiles and use these as means for two separate distributions:
         y2, y3, p_left, p_right, mu_left, mu_right = st.pdf_splitter(x1, omega, mu_corrected, alpha, psi)
         ### Plot the distributions in one graph:
-        plt.plot(x1, y1, lw=2, color='maroon')
-        plt.plot(x1, y2, lw=1.8, color='pink')
-        plt.plot(x1, y3, lw=1.8, color='pink')
+        plt.plot(x1, y1, lw=2, color='maroon', label=r'$\psi$ = 0')
+        if psi != 0:
+            plt.plot(x1, y2, lw=1.8, color='indianred')
+            plt.plot(x1, y3, lw=1.8, color='indianred')
         ### Mean lines:
         plt.vlines(depths[-1], 0, max(y1) + 0.1 * max(y1), linestyle='--', color='maroon', lw=2)
-        plt.vlines(mu_left, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=1.8)
-        plt.vlines(mu_right, 0, max(y1) + 0.1 * max(y1), color='pink', linestyle='-.', lw=1.8)
-        ### Mean and percentile labels:
-        offset = 0.01*(max(x1) - min(x1))
-        plt.text(mu_left, 0.995*max(y1), 'P' + str(int(round(100*p_left, 0))) + '*', rotation='horizontal',
-                 weight='semibold', ha='center')
-        plt.text(mu_left - 3*offset, 0.15*max(y1), r'$\mu_1$ = ' + str(round(mu_left, 1)) + 'm', rotation='vertical',
-                 weight='medium', va='center')
-        plt.text(mu_right, 0.995*max(y1), 'P' + str(int(round(100*p_right, 0))) + '*', rotation='horizontal',
-                 weight='semibold', ha='center')
-        plt.text(mu_right - 3*offset, 0.15*max(y1), r'$\mu_2$ = ' + str(round(mu_right, 1)) + 'm', rotation='vertical',
-                 weight='medium', va='center')
+        if psi != 0:
+            plt.vlines(mu_left, 0, max(y1) + 0.1 * max(y1), color='indianred', linestyle='-.', lw=1.8)
+            plt.vlines(mu_right, 0, max(y1) + 0.1 * max(y1), color='indianred', linestyle='-.', lw=1.8)
+            ### Mean and percentile labels:
+            offset = 0.01*(max(x1) - min(x1))
+            plt.text(mu_left, 0.995*max(y1), 'P' + str(int(round(100*p_left, 0))) + '*', rotation='horizontal',
+                     weight='semibold', ha='center', zorder=10)
+            plt.text(mu_left - 3*offset, 0.15*max(y1), r'$\mu_1$ = ' + str(round(mu_left, 1)) + 'm',
+                     rotation='vertical', weight='medium', va='center', zorder=10)
+            plt.text(mu_right, 0.995*max(y1), 'P' + str(int(round(100*p_right, 0))) + '*', rotation='horizontal',
+                     weight='semibold', ha='center', zorder=10)
+            plt.text(mu_right - 3*offset, 0.15*max(y1), r'$\mu_2$ = ' + str(round(mu_right, 1)) + 'm',
+                     rotation='vertical', weight='medium', va='center', zorder=10)
         ### Limits, labels, title:
         plt.xlim(0, max(x1))
         plt.ylim(0, max(y1) + 0.1 * max(y1))
         plt.xlabel('Parasequence Thickness [m]')
+        plt.ylabel('Probability Density [-]')
         plt.title('Parasequence Thickness Distribution' + '\n' + r'$\mu_0$ = ' + str(depths[-1]) + 'm, ' + r'$\sigma$ = ' +
                   str(alpha) + 'm' + '\n' + r'$\psi = $' + str(psi) + ', ' + r'$\omega$ = ' + str(omega), weight='bold')
         ### Save or show figure:
@@ -96,20 +99,22 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
         for i in range(len(lithologies)):
             ### Plot the distribution for each lithology:
             y2, mu = st.skewed_norm_pdf(x2, omega, depths[i + 1] - depths[i], beta)
-            plt.plot(x2, y2, label='mean = ' + str(round(depths[i + 1] - depths[i], 2)) + ', sigma= ' + str(beta),
-                     color=layout[lithologies[i]][0], lw=2)
+            plt.plot(x2, y2, color=layout[lithologies[i]][0], lw=2)
             plt.axvline(x=depths[i + 1] - depths[i], linestyle='--', lw=1, color=layout[lithologies[i]][0])
-            ### Add lithology and mean labels:
+            ## Add lithology and mean labels:
             plt.text(depths[i + 1] - depths[i], max(y2) + 0.05 * max(y2), lithologies[i], ha='center')
             plt.text(depths[i + 1] - depths[i] - 0.015 * max_thickness, max(y2) + 0.2 * max(y2),
                      str(round(depths[i + 1] - depths[i], 2)) + 'm',
                      rotation='vertical', ha='center', va='center')
             if max(y2) >= y_max:
                 y_max = max(y2)
+        ### Limits, labels and title:
         plt.xlim(min(x2), max(x2))
         plt.ylim(0, y_max + 0.3 * y_max)
-        plt.title('Layer Thickness Distributions, ' + r'$\sigma$ = ' + r'$\beta$ = ' + str(beta) + 'm', weight='bold')
         plt.xlabel('Layer Thickness [m]')
+        plt.ylabel('Probability Density [-]')
+        plt.title('Layer Thickness Distributions, ' + r'$\sigma$ = ' + r'$\beta$ = ' + str(beta) + 'm', weight='bold')
+
         if filepath is None:
             plt.show()
         else:
@@ -237,9 +242,13 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     axes[0].vlines(0, 0, max(x_segmented[-1][-1]))
     ## Plot the parasequence boundaries and labels:
     for i in range(n):
+        ### Parasequence boundaries:
         axes[0].hlines(para_boundaries[i], -1, 1, lw=2, linestyle='--')
-        axes[0].text(1.1, (para_boundaries[i] + para_boundaries[i + 1]) / 2, 'n = ' + str(i + 1))
         axes[1].hlines(para_boundaries[i], 0, 0.2, lw=2, linestyle='-')
+        ### Parasequence label:
+        para_thickness = para_boundaries[i+1] - para_boundaries[i]
+        axes[0].text(1.1, para_boundaries[i] + (para_thickness / 2), 'n = ' + str(i + 1) +
+                     '\n' + str(round(para_thickness, 1)) + 'm')
     ## Add a lithology bar:
     ### Create indents:
     indents = np.linspace(0.5, 0.25, len(lithologies))
@@ -253,6 +262,9 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
             axes[1].add_patch(patches.Rectangle((0, layer_boundaries[i][j]), indent_dict[lithologies[j]],
                                                 layer_boundaries[i][j + 1] - layer_boundaries[i][j], edgecolor='black',
                                                 hatch=layout[lithologies[j]][1], facecolor=layout[lithologies[j]][0]))
+            #### Add layer thickness label:
+            layer_thickness = layer_boundaries[i][j+1] - layer_boundaries[i][j]
+            axes[1].text(0.525, layer_boundaries[i][j] + layer_thickness / 2, str(round(layer_thickness, 1)) + 'm')
     ## Limits, labels, titles:
     ### Axes 0:
     axes[0].set_xlim(-1, 1)
@@ -260,7 +272,7 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     axes[0].set_ylabel('Depth [m]')
     axes[0].set_xlabel('Code value [-]')
     axes[0].set_title('Vertical Profile - ' + str(n) + ' (Para)sequences', weight='bold', y=1.02)
-    axes[0].text(0.05, -0.5, r'$\alpha$ = ' + str(alpha) + ' , ' + r'$\beta$ = ' + str(beta), fontsize=13,
+    axes[0].text(0.05, -0.5, r'$\alpha$ = ' + str(alpha) + 'm, ' + r'$\beta$ = ' + str(beta) + 'm', fontsize=13,
                  weight='semibold', ha='center')
     ### Axes 1:
     axes[1].set_xlim(0, 0.2)
