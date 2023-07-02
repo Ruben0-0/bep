@@ -1,7 +1,7 @@
+from typing import Tuple, Union
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import patches
-from matplotlib.patches import Patch
 # Custom imports:
 import synthtools as syn
 from Numerical_Tools import stats as st
@@ -17,14 +17,18 @@ from Numerical_Tools import stats as st
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
 ## res: the desired resolution; significant for the addition of noise in later steps. [m]
 ## n: total number of (para)sequences in the profile.
+## KWARGS:
 ## alpha [optional]: measure of total parasequence thickness variance. Alpha is the standard deviation for a Gaussian
 ##                   distribution with as mean the given parasequence thickness in 'depths'. Default = 0.
 ## beta [optional]: measure of individual layer thickness variance. Default = 0.
 ## psi [optional]: value between 0 - 1; measure of compensational stacking. If psi = 0, no compensational stacking
 ##                 effect.  If psi = 1, maximum compensational stacking effect. Default = 0.
 ## omega [optional]: measure of skewness for all distributions. Omega > 0 ==> positive skewness and vice versa.
-##                   If omega = 0, distributions are standard normal.
-## filepath [optional]: string containing the directory and filename to which the figures are saved.
+##                   If omega = 0, distributions are standard normal. Default = 0
+## asymmetric [optional]: if True, returns a list of depths and lithologies rather than continuous sampled profiles
+##                        and derivatives. Default = False.
+## filepath [optional]: string containing the directory and filename to which the figures are saved. If None, renders
+##                      the figures within the view screen. Default = None.
 # ======================================================================================================================
 # OUTPUT:
 # ======================================================================================================================
@@ -36,7 +40,9 @@ from Numerical_Tools import stats as st
 
 
 def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int, alpha: float = 0, beta: float = 0,
-              psi: float = 0, omega: float = 0, filepath: str = None):
+              psi: float = 0, omega: float = 0, asymmetric: bool = False, filepath: str = None) -> \
+              Union[Tuple[np.ndarray, np.ndarray, list, list, list], Tuple[list, list]]:
+
     # Calibrate 'depths' to start at 0:
     if depths[0] != 0:
         depths -= depths[0]
@@ -289,6 +295,16 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
         plt.subplots_adjust(wspace=0.3)
         plt.savefig(filepath + '\Full Vertical Profile.png', dpi=fig.dpi, bbox_inches='tight')
     plt.close(fig)
+
+    ## If asymmetric = True, return list of lithologies and depths:
+    if asymmetric:
+        asymmetric_lithologies = []
+        asymmetric_depths = []
+        for i in range(n):
+            asymmetric_lithologies += lithologies
+            for j in range(len(layer_boundaries[i])):
+                asymmetric_depths.append(layer_boundaries[i][j])
+        return asymmetric_depths, asymmetric_lithologies
 
     # Concatenate all of the arrays to create continuous profiles:
     x = syn.matrix_concatenator([syn.matrix_concatenator(x_segmented[i]) for i in range(len(x_segmented))])
