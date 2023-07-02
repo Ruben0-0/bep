@@ -10,6 +10,7 @@ from matplotlib import pyplot as plt
 # Custom imports:
 from Visualization_Tools import profile_visualizers as vp
 from Visualization_Tools import matrix_visualizers as mv
+from Post_Burgess import idealseq
 import tpmat as tp
 import markovmetric as mo
 import diagsift
@@ -96,6 +97,7 @@ def main(depths: list, lithologies: list, layout: dict, res: float, n: int, file
     plt.ylim(0, max(n_hist) + 0.2 * max(n_hist))
     plt.xlabel('Markov Order Metric m [-]')
     plt.ylabel('Relative Frequency [-]')
+    plt.title('Markov Order Metric Distribution, F = ' + str(len(classes)), weight='semibold')
     if filepath is None:
         plt.show()
     else:
@@ -140,13 +142,24 @@ def main(depths: list, lithologies: list, layout: dict, res: float, n: int, file
         sys.stdout.flush()
         sleep(0.25)
 
-    # Highlight the ideal matrices from result3 with a different colormap:
+    # Highlight the ideal matrices from result3 with a different colormap and create ideal sequences:
+    os.makedirs(filepath + '\Ideal Sequences', exist_ok=True)
     for i in range(len(result3)):
         ## Recreate the TP matrix visualization, but now with an opposing colormap:
         ideal_sequence = mv.matrix_imager(result3[i][0], classes, result3[i][2], layout, ideal=True,
                                           filepath=filepath + '\TP Matrices\TP Matrix No.' + str(indices[i] + 1) +
                                           '.png', title='Markov Order Metric m = ' + str(round(result3[i][1], 2)),
                                           cmap='Oranges')
+        ## Create ideal sequence:
+        ideal_depths, ideal_sequence_order = idealseq.ideal_sequencer(depths, lithologies, result3[i][0], result3[i][2],
+                                                                      ideal_sequence, layout, filepath=filepath +
+                                                                      '\Ideal Sequences\Ideal Sequence Thicknesses No.'
+                                                                      + str(indices[i] + 1) + '.png')
+        ideal_depths, ideal_sequence_order = idealseq.ideal_sequencer(depths, lithologies, result3[i][0], result3[i][2],
+                                                                      ideal_sequence, layout, proportional=True,
+                                                                      filepath=filepath +
+                                                                      '\Ideal Sequences\Ideal Sequence Proportions No.'
+                                                                      + str(indices[i] + 1) + '.png')
         ## Add the ideal sequence to result3:
         result3[i].append(ideal_sequence)
 

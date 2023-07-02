@@ -299,11 +299,14 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     ## If asymmetric = True, return list of lithologies and depths:
     if asymmetric:
         asymmetric_lithologies = []
-        asymmetric_depths = []
+        asymmetric_depths = [0]
         for i in range(n):
             asymmetric_lithologies += lithologies
             for j in range(len(layer_boundaries[i])):
-                asymmetric_depths.append(layer_boundaries[i][j])
+                if j > 0:
+                    asymmetric_depths.append(layer_boundaries[i][j])
+                else:
+                    pass
         return asymmetric_depths, asymmetric_lithologies
 
     # Concatenate all of the arrays to create continuous profiles:

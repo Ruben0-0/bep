@@ -124,6 +124,7 @@ def coded_profile(depths: list, lithologies: list, classes: list, facies_dict: d
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
 ## res [optional]: determines the step-size on the vertical axis of the figure. Default = 1.0m.
 ## dimensions [optional]: tuple containing (width, height) of the figure. Default = (1, 6).
+## proportional [optional]: if True, returns parasequence proportions instead of thicknesses. Default = False.
 ## filepath [optional]: string containing the directory and filename to which the figure is saved.
 # ======================================================================================================================
 # OUTPUT:
@@ -132,7 +133,7 @@ def coded_profile(depths: list, lithologies: list, classes: list, facies_dict: d
 
 
 def parasequence_profile(para_depths: list, para_lithologies: list, layout: dict, res: float = 1.0,
-                         dimensions: tuple = (1, 6), filepath: str = None) -> None:
+                         dimensions: tuple = (1, 6), proportional: bool = False, filepath: str = None) -> None:
     # Create figure and axes:
     fig, ax = plt.subplots()
     w, h = dimensions
@@ -148,8 +149,12 @@ def parasequence_profile(para_depths: list, para_lithologies: list, layout: dict
                                        edgecolor='black', hatch=layout[para_lithologies[i]][1],
                                        facecolor=layout[para_lithologies[i]][0]))
         ## Add thickness label:
-        ax.text(0.6, para_depths[i] + (para_depths[i+1]-para_depths[i])/2,
-                str(round(para_depths[i+1]-para_depths[i], 1)) + 'm')
+        if proportional:
+            ax.text(0.6, para_depths[i] + (para_depths[i + 1] - para_depths[i]) / 2,
+                    str(round(para_depths[i + 1] - para_depths[i], 2)))
+        else:
+            ax.text(0.6, para_depths[i] + (para_depths[i+1]-para_depths[i])/2,
+                    str(round(para_depths[i+1]-para_depths[i], 1)) + 'm')
 
         ## Add lithology line:
         plt.vlines(indents[i], ymin=para_depths[i+1], ymax=para_depths[-1], lw=1)
@@ -157,11 +162,14 @@ def parasequence_profile(para_depths: list, para_lithologies: list, layout: dict
     # Ticks, limits, labels, title:
     ax.set_xticks(np.linspace(0.5, 0.25, len(para_lithologies)))
     ax.set_xticklabels(para_lithologies, weight='semibold', fontsize='xx-small', rotation=90)
-    ax.set_yticks(np.arange(0, para_depths[-1] + res, res))
     ax.set_xlim(0, 0.5)
-    ax.set_ylim(max(para_depths), min(para_depths))
-    ax.set_ylabel('Depths [m]')
     ax.set_title('Parasequence:', weight='semibold')
+    ax.set_yticks(np.arange(0, para_depths[-1] + res, res))
+    ax.set_ylim(max(para_depths), min(para_depths))
+    if proportional:
+        ax.set_ylabel('Thickness / Parasequence thickness [-]')
+    else:
+        ax.set_ylabel('Depths [m]')
 
     # Save or show figure:
     if filepath is None:

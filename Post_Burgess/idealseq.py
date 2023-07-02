@@ -17,6 +17,7 @@ from Visualization_Tools import profile_visualizers as pv
 ## sequence_order: list of length F, containing from bottom to top the ideal facies order as obtained from the Burgess
 ##                 algorithm.
 ## layout: a dictionary containing as key:value pairs 'facies class:[color, hatch]'.
+## proportional [optional]: if True, returns parasequence proportions instead of thicknesses. Default = False.
 ## filepath [optional]: string containing the directory to which the figure is saved.
 # ======================================================================================================================
 # OUTPUT:
@@ -28,7 +29,8 @@ from Visualization_Tools import profile_visualizers as pv
 
 
 def ideal_sequencer(depths: list, lithologies: list, tp_matrix: np.ndarray, facies_dict: dict,
-                    sequence_order: list, layout: dict, filepath: str = None) -> Tuple[list, list]:
+                    sequence_order: list, layout: dict, proportional: bool = False, filepath: str = None) -> \
+                    Tuple[list, list]:
 
     # Amount of facies classes F:
     F = len(tp_matrix[0, :])
@@ -63,14 +65,18 @@ def ideal_sequencer(depths: list, lithologies: list, tp_matrix: np.ndarray, faci
         for j in range(F):
             row_thickness += thickness_mat[i, j]
         ## Store the thickness with the proper lithology in the dict:
-        thickness_dict[reverse_facies_dict[str(i)]] = row_thickness
+        thickness_dict[reverse_facies_dict[str((F-1)-i)]] = row_thickness
 
     # Now we create, from the ideal sequence order, an ideal sequence with ideal thicknesses:
     ideal_depths = [0]
     for i in range(len(sequence_order)):
         ideal_depths.append(ideal_depths[i] + thickness_dict[sequence_order[i]])
 
+    # Normalize ideal depths into proportions:
+    if proportional:
+        ideal_depths = ideal_depths / ideal_depths[-1]
+
     # Visualize the ideal sequence:
-    pv.parasequence_profile(ideal_depths, sequence_order, layout, filepath=filepath + '\Ideal Sequence.png')
+    pv.parasequence_profile(ideal_depths, sequence_order, layout, proportional=proportional, filepath=filepath)
 
     return ideal_depths, sequence_order
