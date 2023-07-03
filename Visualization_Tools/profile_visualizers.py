@@ -30,12 +30,19 @@ def vertical_profile(depths: list, lithologies: list, layout: dict, res: float, 
     fig.set_size_inches(w, h)
 
     # Add a rectangle patch for each lithological unit:
+    ## Create indents:
     classes = []
+    for key in layout:
+        classes.append(key)
+    indents = np.linspace(0.5, 0.25, len(classes))
+    indent_dict = {}
+    for i in range(len(classes)):
+        indent_dict[classes[i]] = indents[i]
+    ## Add lithology patch:
     for i in range(len(lithologies)):
-        ax.add_patch(patches.Rectangle((0, depths[i]), 0.5, depths[i + 1] - depths[i], edgecolor='black',
-                                       hatch=layout[lithologies[i]][1], facecolor=layout[lithologies[i]][0]))
-        if lithologies[i] not in classes:
-            classes.append(lithologies[i])
+        ax.add_patch(patches.Rectangle((0, depths[i]), indent_dict[lithologies[i]], depths[i + 1] - depths[i],
+                                       edgecolor='black', hatch=layout[lithologies[i]][1],
+                                       facecolor=layout[lithologies[i]][0]))
 
     # Set labels, limits:
     y_step = 10*res
@@ -43,14 +50,9 @@ def vertical_profile(depths: list, lithologies: list, layout: dict, res: float, 
     ax.set_ylim(max(depths), min(depths))
     ax.set_ylabel('Depth [m]')
     ax.set_xlim(0, 0.5)
-    ax.set_xticks([])
+    ax.set_xticks(indents)
+    ax.set_xticklabels(classes, weight='semibold', fontsize='medium', rotation=90)
     ax.set_xlabel('')
-    # Create custom legend:
-    legend_elements = []
-    for i in range(len(classes)):
-        legend_elements.append(Patch(facecolor=layout[classes[i]][0], hatch=layout[classes[i]][1],
-                                     edgecolor='black', label=classes[i]))
-    plt.legend(handles=legend_elements, loc='lower left')
 
     # Save the fig to the given filepath or show if no filepath given:
     if filepath is None:
