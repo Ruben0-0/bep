@@ -2,6 +2,7 @@ from typing import Tuple, Union
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import patches
+import random
 # Custom imports:
 import synthtools as syn
 from Numerical_Tools import stats as st
@@ -108,7 +109,8 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
             plt.plot(x2, y2, color=layout[lithologies[i]][0], lw=2)
             plt.axvline(x=depths[i + 1] - depths[i], linestyle='--', lw=1, color=layout[lithologies[i]][0])
             ## Add lithology and mean labels:
-            plt.text(depths[i + 1] - depths[i], max(y2) + 0.05 * max(y2), lithologies[i], ha='center')
+            plt.text(depths[i + 1] - depths[i] - 0.015 * max_thickness, max(y2) + 0.05 * max(y2), lithologies[i],
+                     rotation='vertical', ha='center', va='center')
             plt.text(depths[i + 1] - depths[i] - 0.015 * max_thickness, max(y2) + 0.2 * max(y2),
                      str(round(depths[i + 1] - depths[i], 2)) + 'm',
                      rotation='vertical', ha='center', va='center')
@@ -139,15 +141,24 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     layer_boundaries = []
     ## Store for each parasequence a dictionary containing its characteristic sieve parameters for each layer:
     dicts = []
+    ## Compensational stacking starting point:
+    left_start = random.choice([True, False])
     for i in range(n):
         d_tot = depths[-1]
         ### Grab a total thickness from the Gaussian distribution if alpha is nonzero:
         if alpha != 0:
-            #### Compensational stacking: alternate between the left and right distributions:
-            if (i % 2) == 0:
-                d_tot = st.skewed_norm_rvs(omega, mu_left, alpha)
-            else:
-                d_tot = st.skewed_norm_rvs(omega, mu_right, alpha)
+            if left_start:
+                #### Compensational stacking: alternate between the left and right distributions, start at left:
+                if (i % 2) == 0:
+                    d_tot = st.skewed_norm_rvs(omega, mu_left, alpha)
+                else:
+                    d_tot = st.skewed_norm_rvs(omega, mu_right, alpha)
+            if not left_start:
+                #### Compensational stacking: alternate between the left and right distributions, start at right:
+                if (i % 2) == 0:
+                    d_tot = st.skewed_norm_rvs(omega, mu_right, alpha)
+                else:
+                    d_tot = st.skewed_norm_rvs(omega, mu_left, alpha)
 
         ### Determine the layer boundaries within the ith parasequence:
         layers = [0]
@@ -277,9 +288,10 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     axes[0].set_ylim(max(x_segmented[-1][-1]), min(x_segmented[0][0]))
     axes[0].set_ylabel('Depth [m]')
     axes[0].set_xlabel('Code value [-]')
-    axes[0].set_title('Vertical Profile - ' + str(n) + ' (Para)sequences', weight='bold', y=1.02)
-    axes[0].text(0.05, -0.5, r'$\alpha$ = ' + str(alpha) + 'm, ' + r'$\beta$ = ' + str(beta) + 'm', fontsize=13,
-                 weight='semibold', ha='center')
+    axes[0].set_title('Vertical Profile - ' + str(n) + ' (Para)sequences' + '\n' + r'$\alpha$ = ' + str(alpha) + 'm, '
+                      + r'$\beta$ = ' + str(beta) + 'm', weight='bold')
+    # axes[0].text(0.05, -0.5, r'$\alpha$ = ' + str(alpha) + 'm, ' + r'$\beta$ = ' + str(beta) + 'm', fontsize=13,
+    #             weight='semibold', ha='center')
     ### Axes 1:
     axes[1].set_xlim(0, 0.2)
     axes[1].set_ylim(max(x_segmented[-1][-1]), min(x_segmented[0][0]))
@@ -292,7 +304,7 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     if filepath is None:
         plt.show()
     else:
-        plt.subplots_adjust(wspace=0.3)
+        plt.subplots_adjust(wspace=0.4)
         plt.savefig(filepath + '\Full Vertical Profile.png', dpi=fig.dpi, bbox_inches='tight')
     plt.close(fig)
 
