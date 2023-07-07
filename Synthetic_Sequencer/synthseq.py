@@ -290,8 +290,6 @@ def sequencer(depths: list, lithologies: list, layout: dict, res: float, n: int,
     axes[0].set_xlabel('Code value [-]')
     axes[0].set_title('Vertical Profile - ' + str(n) + ' (Para)sequences' + '\n' + r'$\alpha$ = ' + str(alpha) + 'm, '
                       + r'$\beta$ = ' + str(beta) + 'm', weight='bold')
-    # axes[0].text(0.05, -0.5, r'$\alpha$ = ' + str(alpha) + 'm, ' + r'$\beta$ = ' + str(beta) + 'm', fontsize=13,
-    #             weight='semibold', ha='center')
     ### Axes 1:
     axes[1].set_xlim(0, 0.2)
     axes[1].set_ylim(max(x_segmented[-1][-1]), min(x_segmented[0][0]))

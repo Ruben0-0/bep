@@ -130,10 +130,7 @@ def gaussian_noise(x_profile, y_profile, derivs, para_boundaries: list, dicts: l
     axes[0].set_ylim(max(x_profile), min(x_profile))
     axes[0].set_xlabel('Noise Value [-]')
     axes[0].set_ylabel('Depth [m]')
-    axes[0].set_title('Gaussian Noise', weight='semibold', y=1.02)
-    axes[0].text(0.05, -0.5, r'$\gamma$ = ' + str(gamma), fontsize=13,
-                 weight='semibold', ha='center')
-    # axes[0].legend(loc='upper left')
+    axes[0].set_title('Gaussian Noise' + '\n' + r'$\gamma$ = ' + str(gamma), weight='semibold')
     ### Axes 1:
     axes[1].set_xlim(-1, 1)
     axes[1].set_ylim(max(x_profile), min(x_profile))

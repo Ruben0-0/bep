@@ -49,9 +49,9 @@ def matrix_imager(tp_matrix: np.ndarray, classes: list, facies_dict: dict, layou
     rev_facies_dict = syn.reverse_dict(facies_dict)
     for i in range(F):
         x_labels.append(rev_facies_dict[str(i)])
-    axes[0].set_xticklabels(x_labels, weight='bold')
+    axes[0].set_xticklabels(x_labels, weight='bold', fontsize='small')
     x_labels.reverse()
-    axes[0].set_yticklabels(x_labels, weight='bold')
+    axes[0].set_yticklabels(x_labels, weight='bold', fontsize='small')
     ## Patch out the j=0 diagonal:
     for i in range(F + 1):
         axes[0].add_patch(patches.Rectangle(((-1.5 + i), ((F - 0.5) - i)), 1, 1, edgecolor='black',

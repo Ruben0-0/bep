@@ -77,6 +77,6 @@ def ideal_sequencer(depths: list, lithologies: list, tp_matrix: np.ndarray, faci
         ideal_depths = ideal_depths / ideal_depths[-1]
 
     # Visualize the ideal sequence:
-    pv.parasequence_profile(ideal_depths, sequence_order, layout, proportional=proportional, filepath=filepath)
+    pv.parasequence_profile(ideal_depths, sequence_order, layout, res=10, proportional=proportional, filepath=filepath)
 
     return ideal_depths, sequence_order
