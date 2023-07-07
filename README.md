@@ -12,10 +12,17 @@ load in custom datasets and run them through
 Burgess' optimization method. An example of this
 has been provided under the directory "Data from
 Saputra" where three stratigraphic logs are
-read from excel files and run through the
+read from Excel files and run through the
 algorithm. More examples of the usage of both
 block 1 and block 2 are available in the 
 directory "Workstation".
+
+-------------------------------------------------
+The dataset belonging to the original thesis
+can be obtained at:
+- https://drive.google.com/file/d/1bA8eNNvAoClY1M_1zhYnwSPLEnPZ6s29/view?usp=sharing
+
+-------------------------------------------------
 
 ## Usage:
 
